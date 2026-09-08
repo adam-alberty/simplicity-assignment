@@ -1,14 +1,14 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
 import {
 	Empty,
 	EmptyContent,
 	EmptyDescription,
 	EmptyHeader,
 	EmptyTitle,
-} from '@/components/ui/empty';
+} from "@/components/ui/empty";
 
-export const Route = createFileRoute('/')({ component: Home });
+export const Route = createFileRoute("/(app)/")({ component: Home });
 
 function Home() {
 	return (

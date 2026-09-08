@@ -1,10 +1,10 @@
 export function getTimeString(date: Date, lang = navigator.language): string {
 	return date.toLocaleDateString(lang, {
-		year: 'numeric',
-		month: 'short',
-		day: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
+		year: "numeric",
+		month: "short",
+		day: "numeric",
+		hour: "2-digit",
+		minute: "2-digit",
 	});
 }
 
@@ -26,13 +26,13 @@ export function getRelativeTimeString(
 	];
 
 	const units: Intl.RelativeTimeFormatUnit[] = [
-		'second',
-		'minute',
-		'hour',
-		'day',
-		'week',
-		'month',
-		'year',
+		"second",
+		"minute",
+		"hour",
+		"day",
+		"week",
+		"month",
+		"year",
 	];
 
 	const unitIndex = cutoffs.findIndex(
@@ -41,6 +41,6 @@ export function getRelativeTimeString(
 
 	const divisor = unitIndex ? cutoffs[unitIndex - 1] : 1;
 
-	const rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto' });
+	const rtf = new Intl.RelativeTimeFormat(lang, { numeric: "auto" });
 	return rtf.format(Math.floor(deltaSeconds / divisor), units[unitIndex]);
 }

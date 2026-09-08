@@ -1,4 +1,4 @@
-import { useTable, type ColumnDef, type RowData } from '@tanstack/react-table';
+import { type ColumnDef, type RowData, useTable } from "@tanstack/react-table";
 import {
 	Table,
 	TableBody,
@@ -6,8 +6,8 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@/components/ui/table';
-import { features, type DataTableFeatures } from './table-features';
+} from "@/components/ui/table";
+import { type DataTableFeatures, features } from "./table-features";
 
 interface DataTableProps<TData extends RowData> {
 	columns: ColumnDef<DataTableFeatures, TData>[];
@@ -47,7 +47,7 @@ export function AnnoucementsTable<TData extends RowData>({
 						table.getRowModel().rows.map((row) => (
 							<TableRow
 								key={row.id}
-								data-state={row.getIsSelected() && 'selected'}
+								data-state={row.getIsSelected() && "selected"}
 							>
 								{row.getVisibleCells().map((cell) => (
 									<TableCell key={cell.id}>

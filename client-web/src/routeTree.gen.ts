@@ -9,68 +9,116 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AnnouncementsIndexRouteImport } from './routes/announcements/index'
+import { Route as appRouteRouteImport } from './routes/(app)/route'
+import { Route as appIndexRouteImport } from './routes/(app)/index'
+import { Route as appAnnouncementsIndexRouteImport } from './routes/(app)/announcements/index'
+import { Route as appAnnouncementsIdRouteImport } from './routes/(app)/announcements/$id'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const appRouteRoute = appRouteRouteImport.update({
+  id: '/(app)',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AnnouncementsIndexRoute = AnnouncementsIndexRouteImport.update({
+const appIndexRoute = appIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appAnnouncementsIndexRoute = appAnnouncementsIndexRouteImport.update({
   id: '/announcements/',
   path: '/announcements/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appAnnouncementsIdRoute = appAnnouncementsIdRouteImport.update({
+  id: '/announcements/$id',
+  path: '/announcements/$id',
+  getParentRoute: () => appRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/announcements/': typeof AnnouncementsIndexRoute
+  '/': typeof appIndexRoute
+  '/announcements/$id': typeof appAnnouncementsIdRoute
+  '/announcements/': typeof appAnnouncementsIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/announcements': typeof AnnouncementsIndexRoute
+  '/': typeof appIndexRoute
+  '/announcements/$id': typeof appAnnouncementsIdRoute
+  '/announcements': typeof appAnnouncementsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/announcements/': typeof AnnouncementsIndexRoute
+  '/(app)': typeof appRouteRouteWithChildren
+  '/(app)/': typeof appIndexRoute
+  '/(app)/announcements/$id': typeof appAnnouncementsIdRoute
+  '/(app)/announcements/': typeof appAnnouncementsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/announcements/'
+  fullPaths: '/' | '/announcements/$id' | '/announcements/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/announcements'
-  id: '__root__' | '/' | '/announcements/'
+  to: '/' | '/announcements/$id' | '/announcements'
+  id:
+    | '__root__'
+    | '/(app)'
+    | '/(app)/'
+    | '/(app)/announcements/$id'
+    | '/(app)/announcements/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AnnouncementsIndexRoute: typeof AnnouncementsIndexRoute
+  appRouteRoute: typeof appRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/(app)': {
+      id: '/(app)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof appRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/announcements/': {
-      id: '/announcements/'
+    '/(app)/': {
+      id: '/(app)/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof appIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/announcements/': {
+      id: '/(app)/announcements/'
       path: '/announcements'
       fullPath: '/announcements/'
-      preLoaderRoute: typeof AnnouncementsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof appAnnouncementsIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/announcements/$id': {
+      id: '/(app)/announcements/$id'
+      path: '/announcements/$id'
+      fullPath: '/announcements/$id'
+      preLoaderRoute: typeof appAnnouncementsIdRouteImport
+      parentRoute: typeof appRouteRoute
     }
   }
 }
 
+interface appRouteRouteChildren {
+  appIndexRoute: typeof appIndexRoute
+  appAnnouncementsIdRoute: typeof appAnnouncementsIdRoute
+  appAnnouncementsIndexRoute: typeof appAnnouncementsIndexRoute
+}
+
+const appRouteRouteChildren: appRouteRouteChildren = {
+  appIndexRoute: appIndexRoute,
+  appAnnouncementsIdRoute: appAnnouncementsIdRoute,
+  appAnnouncementsIndexRoute: appAnnouncementsIndexRoute,
+}
+
+const appRouteRouteWithChildren = appRouteRoute._addFileChildren(
+  appRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AnnouncementsIndexRoute: AnnouncementsIndexRoute,
+  appRouteRoute: appRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
