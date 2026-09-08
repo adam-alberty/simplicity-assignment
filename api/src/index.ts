@@ -1,15 +1,34 @@
-import { serve } from '@hono/node-server'
-import { Hono } from 'hono'
+import { serve } from "@hono/node-server";
+import { Hono } from "hono";
+import { logger } from "hono/logger";
+import { AnnouncementRepository } from "./announcements/announcement.repository.js";
+import { createAnnouncementRoutes } from "./announcements/announcement.routes.js";
+import { AnnouncementService } from "./announcements/announcement.service.js";
+import { db } from "./db/index.js";
 
-const app = new Hono()
+const announcementRepository = new AnnouncementRepository(db);
+const announcementService = new AnnouncementService(announcementRepository);
+const announcementRoutes = createAnnouncementRoutes(announcementService);
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
+const app = new Hono();
 
-serve({
-  fetch: app.fetch,
-  port: 3000
-}, (info) => {
-  console.log(`Server is running on http://localhost:${info.port}`)
-})
+app.use(logger());
+
+const API_PREFIX = "/api/v1";
+
+app.route(`${API_PREFIX}/announcements`, announcementRoutes);
+
+app.get("/healthz", (c) => {
+	c.status(200);
+	return c.text("ok");
+});
+
+serve(
+	{
+		fetch: app.fetch,
+		port: 8080,
+	},
+	(info) => {
+		console.log(`Server is running on http://localhost:${info.port}`);
+	},
+);
