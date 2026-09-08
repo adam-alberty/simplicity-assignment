@@ -1,7 +1,4 @@
 allowBuilds:
   esbuild: true
   lightningcss: true
-
-onlyBuiltDependencies:
-  - esbuild
-  - lightningcss
+  pnpm: false
