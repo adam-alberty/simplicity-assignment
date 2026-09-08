@@ -49,13 +49,18 @@ export const columns = columnHelper.columns([
 	columnHelper.accessor("id", {
 		header: "",
 		cell: ({ getValue }) => (
-			<Button
-				nativeButton={false}
-				render={<Link to={`/announcements/$id`} params={{ id: getValue() }} />}
-			>
-				<Pen />
-				Edit
-			</Button>
+			<div className="flex justify-end">
+				<Button
+					variant="secondary"
+					nativeButton={false}
+					aria-label="Edit announcement"
+					render={
+						<Link to={`/announcements/$id`} params={{ id: getValue() }} />
+					}
+				>
+					<Pen />
+				</Button>
+			</div>
 		),
 	}),
 ]);
