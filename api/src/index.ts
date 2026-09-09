@@ -5,6 +5,8 @@ import { AnnouncementRepository } from "./announcements/announcement.repository.
 import { createAnnouncementRoutes } from "./announcements/announcement.routes.js";
 import { AnnouncementService } from "./announcements/announcement.service.js";
 import { db, mustConnectToDatabase } from "./db/index.js";
+import { cors } from "hono/cors";
+import { handleError } from "./errors/error-handler.js";
 
 await mustConnectToDatabase();
 
@@ -14,7 +16,8 @@ const announcementRoutes = createAnnouncementRoutes(announcementService);
 
 const app = new Hono();
 
-app.use(logger());
+app.use(logger(), cors());
+app.onError(handleError);
 
 const API_PREFIX = "/api/v1";
 

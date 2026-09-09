@@ -4,22 +4,7 @@ import { Pen } from "lucide-react";
 import Time from "../time";
 import { Button } from "../ui/button";
 import type { DataTableFeatures } from "./table-features";
-
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-
-export type Category = {
-	id: string;
-	name: string;
-};
-
-export type Announcement = {
-	id: string;
-	title: string;
-	publicationDate: Date;
-	lastUpdate: Date;
-	categories: Category[];
-};
+import type { Announcement } from "#/lib/announcements/types";
 
 // Use `accessor` for data columns and `display` for columns without one.
 const columnHelper = createColumnHelper<DataTableFeatures, Announcement>();
@@ -28,12 +13,12 @@ export const columns = columnHelper.columns([
 	columnHelper.accessor("title", {
 		header: "Title",
 	}),
-	columnHelper.accessor("publicationDate", {
+	columnHelper.accessor("publishedAt", {
 		header: "Publication date",
 		cell: ({ getValue }) => <Time date={getValue()} />,
 	}),
 
-	columnHelper.accessor("lastUpdate", {
+	columnHelper.accessor("updatedAt", {
 		header: "Last update",
 		cell: ({ getValue }) => <Time date={getValue()} />,
 	}),

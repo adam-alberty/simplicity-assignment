@@ -1,30 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { type Announcement, columns } from "#/components/announcements/columns";
+import { columns } from "#/components/announcements/columns";
 import { AnnoucementsTable } from "#/components/announcements/table";
+import { useQuery } from "@tanstack/react-query";
+import { listAnnouncements } from "#/lib/announcements/api";
+import { TableSkeleton } from "#/components/table-skeleton";
+import { AlertError } from "#/components/alert-error";
 
 export const Route = createFileRoute("/(app)/announcements/")({
 	component: RouteComponent,
 });
 
-const announcements: Announcement[] = [
-	{
-		id: crypto.randomUUID(),
-		title: "Some announcement",
-		categories: [
-			{ id: crypto.randomUUID(), name: "city" },
-			{ id: crypto.randomUUID(), name: "health" },
-		],
-		lastUpdate: new Date(),
-		publicationDate: new Date(),
-	},
-];
-
 function RouteComponent() {
+	const { isPending, isError, error, data } = useQuery({
+		queryKey: ["announcements"],
+		queryFn: listAnnouncements,
+	});
+
 	return (
 		<>
 			<div className="text-2xl font-bold">Announcements</div>
 			<section className="mt-10">
-				<AnnoucementsTable columns={columns} data={announcements} />
+				{isPending && <TableSkeleton />}
+				{data && <AnnoucementsTable columns={columns} data={data} />}
+				{isError && <AlertError error={error} />}
 			</section>
 		</>
 	);
