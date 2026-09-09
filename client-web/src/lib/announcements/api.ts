@@ -1,19 +1,9 @@
 import { apiFetch } from "../api/client";
-import type { Announcement } from "./types";
+import type { Announcement, AnnouncementCategory } from "./types";
 
-interface ListAnnouncementsResponse {
-	announcements: {
-		id: string;
-		title: string;
-		content: string;
-		publishedAt: string;
-		updatedAt: string;
-		categories: {
-			id: string;
-			name: string;
-		}[];
-	}[];
-}
+type ListAnnouncementsResponse = {
+	announcements: Announcement[];
+};
 
 export async function listAnnouncements(): Promise<Announcement[]> {
 	const res = await apiFetch<ListAnnouncementsResponse>("/announcements");
@@ -28,17 +18,7 @@ export async function listAnnouncements(): Promise<Announcement[]> {
 	}));
 }
 
-interface GetOneAnnouncementResponse {
-	id: string;
-	title: string;
-	content: string;
-	publishedAt: string;
-	updatedAt: string;
-	categories: {
-		id: string;
-		name: string;
-	}[];
-}
+type GetOneAnnouncementResponse = Announcement;
 
 export async function getOneAnnouncement(id: string): Promise<Announcement> {
 	const res = await apiFetch<GetOneAnnouncementResponse>(
@@ -53,4 +33,43 @@ export async function getOneAnnouncement(id: string): Promise<Announcement> {
 		publishedAt: new Date(res.publishedAt),
 		updatedAt: new Date(res.updatedAt),
 	};
+}
+
+type GetAnnouncementCategoriesResponse = AnnouncementCategory[];
+
+export async function getAnnouncementCategories(): Promise<
+	AnnouncementCategory[]
+> {
+	const res = await apiFetch<GetAnnouncementCategoriesResponse>(
+		`/announcement-categories`,
+	);
+
+	return res.map((cat) => ({
+		id: cat.id,
+		name: cat.name,
+	}));
+}
+
+export type EditAnnouncementInput = {
+	id: string;
+	title: string;
+	content: string;
+	publishedAt: Date;
+	categoryIds: string[];
+};
+
+export async function editAnnouncement(
+	announcement: EditAnnouncementInput,
+): Promise<AnnouncementCategory[]> {
+	const reqBody = {
+		title: announcement.title,
+		content: announcement.content,
+		publishedAt: announcement.publishedAt,
+		categoryIds: announcement.categoryIds,
+	};
+
+	return await apiFetch<GetAnnouncementCategoriesResponse>(
+		`/announcements/${announcement.id}`,
+		{ method: "PATCH", body: JSON.stringify(reqBody) },
+	);
 }

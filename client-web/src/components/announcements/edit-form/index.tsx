@@ -1,6 +1,13 @@
 import { useForm } from "@tanstack/react-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import * as z from "zod";
-import type { Announcement } from "#/lib/announcements/types";
+import { AlertError } from "#/components/alert-error";
+import { editAnnouncement } from "#/lib/announcements/api";
+import type {
+	Announcement,
+	AnnouncementCategory,
+} from "#/lib/announcements/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -14,26 +21,103 @@ import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupTextarea } from "@/components/ui/input-group";
 import { CategoriesSelect } from "./multi-select";
 
-const formSchema = z.object({
-	title: z.string(),
-	content: z.string(),
-	categoryIds: z.array(z.string()),
-	publishedAt: z.date(),
+const publishedAtSchema = z.string().superRefine((value, ctx) => {
+	const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})$/);
+
+	if (!match) {
+		ctx.addIssue({
+			code: "custom",
+			message: "Expected format: MM/DD/YYYY HH:mm",
+		});
+		return;
+	}
+
+	const [, month, day, _year, hour, minute] = match;
+
+	if (+month < 1 || +month > 12) {
+		ctx.addIssue({
+			code: "custom",
+			message: "Month must be between 01 and 12",
+		});
+	}
+
+	if (+day < 1 || +day > 31) {
+		ctx.addIssue({
+			code: "custom",
+			message: "Day must be between 01 and 31",
+		});
+	}
+
+	if (+hour < 0 || +hour > 23) {
+		ctx.addIssue({
+			code: "custom",
+			message: "Hour must be between 00 and 23",
+		});
+	}
+
+	if (+minute < 0 || +minute > 59) {
+		ctx.addIssue({
+			code: "custom",
+			message: "Minute must be between 00 and 59",
+		});
+	}
 });
 
-export function EditForm({ announcement }: { announcement: Announcement }) {
+const formSchema = z.object({
+	title: z.string().min(1, "Title cannot be empty"),
+	content: z.string().min(1, "Content cannot be empty"),
+	categoryIds: z
+		.array(z.string())
+		.min(1, "Announcement must have at least one category"),
+	publishedAt: publishedAtSchema,
+});
+
+function fieldFormattedDate(date: Date) {
+	const pad = (n: number) => String(n).padStart(2, "0");
+	return `${pad(date.getMonth() + 1)}/${pad(date.getDate())}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+export function EditForm({
+	announcement,
+	categories,
+}: {
+	announcement: Announcement;
+	categories: AnnouncementCategory[];
+}) {
+	const navigate = useNavigate();
+	const queryClient = useQueryClient();
+
+	const editAnnouncementMutation = useMutation({
+		mutationFn: editAnnouncement,
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["announcements"],
+			});
+			navigate({
+				to: "/announcements",
+			});
+		},
+	});
+
 	const form = useForm({
 		defaultValues: {
 			title: announcement.title,
 			content: announcement.content,
 			categoryIds: announcement.categories.map((c) => c.id),
-			publishedAt: announcement.publishedAt,
+			publishedAt: fieldFormattedDate(announcement.publishedAt),
 		},
 		validators: {
 			onSubmit: formSchema,
 		},
 		onSubmit: async ({ value }) => {
-			console.log(value);
+			editAnnouncementMutation.mutate({
+				id: announcement.id,
+				title: value.title,
+				content: value.content,
+				categoryIds: value.categoryIds,
+				// TODO this should be validated first
+				publishedAt: new Date(value.publishedAt),
+			});
 		},
 	});
 
@@ -116,7 +200,9 @@ export function EditForm({ announcement }: { announcement: Announcement }) {
 										</FieldDescription>
 
 										<CategoriesSelect
-											categories={[{ id: "asdfasdf", name: "testing" }]}
+											categories={categories}
+											value={field.state.value}
+											onChange={field.handleChange}
 										/>
 
 										{isInvalid && (
@@ -134,7 +220,9 @@ export function EditForm({ announcement }: { announcement: Announcement }) {
 									field.state.meta.isTouched && !field.state.meta.isValid;
 								return (
 									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor={field.name}>Title</FieldLabel>
+										<FieldLabel htmlFor={field.name}>
+											Publication date
+										</FieldLabel>
 										<Input
 											id={field.name}
 											name={field.name}
@@ -154,6 +242,12 @@ export function EditForm({ announcement }: { announcement: Announcement }) {
 						/>
 					</FieldGroup>
 				</form>
+
+				{editAnnouncementMutation.isError && (
+					<div className="mt-5">
+						<AlertError error={editAnnouncementMutation.error} />
+					</div>
+				)}
 			</CardContent>
 			<CardFooter>
 				<Field orientation="horizontal">

@@ -14,17 +14,26 @@ import {
 
 export function CategoriesSelect({
 	categories,
+	value,
+	onChange,
 }: {
 	categories: AnnouncementCategory[];
+	value: string[];
+	onChange: (v: string[]) => void;
 }) {
 	const anchor = useComboboxAnchor();
+
+	const selectedCategories = categories.filter((cat) => value.includes(cat.id));
 
 	return (
 		<Combobox
 			multiple
 			autoHighlight
 			items={categories}
-			defaultValue={[categories[0]]}
+			value={selectedCategories}
+			onValueChange={(v) => {
+				onChange(v.map((cat) => cat.id));
+			}}
 		>
 			<ComboboxChips ref={anchor} className="w-full">
 				<ComboboxValue>

@@ -1,5 +1,7 @@
 import { Hono } from "hono";
+import z from "zod";
 import { AppError } from "../errors/error.js";
+import { editAnnouncementSchema } from "./announcement.schema.js";
 import type { AnnouncementService } from "./announcement.service.js";
 
 export function createAnnouncementRoutes(
@@ -26,6 +28,14 @@ export function createAnnouncementRoutes(
 		}
 
 		return c.json(announcement);
+	});
+
+	app.patch("/:id", async (c) => {
+		const parsedBody = z.parse(editAnnouncementSchema, await c.req.json());
+
+		await announcementService.edit(c.req.param("id"), parsedBody);
+
+		return c.json({ success: true });
 	});
 
 	return app;

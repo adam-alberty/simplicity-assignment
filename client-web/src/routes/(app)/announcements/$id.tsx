@@ -5,7 +5,10 @@ import { AlertError } from "#/components/alert-error";
 import { EditForm } from "#/components/announcements/edit-form";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
-import { getOneAnnouncement } from "#/lib/announcements/api";
+import {
+	getAnnouncementCategories,
+	getOneAnnouncement,
+} from "#/lib/announcements/api";
 
 export const Route = createFileRoute("/(app)/announcements/$id")({
 	component: RouteComponent,
@@ -15,8 +18,15 @@ function RouteComponent() {
 	const params = Route.useParams();
 
 	const { isPending, isError, error, data } = useQuery({
-		queryKey: ["one-announcement"],
-		queryFn: () => getOneAnnouncement(params.id),
+		queryKey: ["announcement", params.id],
+		queryFn: async () => {
+			const [announcement, categories] = await Promise.all([
+				getOneAnnouncement(params.id),
+				getAnnouncementCategories(),
+			]);
+
+			return { announcement, categories };
+		},
 	});
 
 	return (
@@ -34,7 +44,12 @@ function RouteComponent() {
 
 			<section className="mt-10">
 				{isPending && <Skeleton className="h-[50vh]" />}
-				{data && <EditForm announcement={data} />}
+				{data && (
+					<EditForm
+						announcement={data.announcement}
+						categories={data.categories}
+					/>
+				)}
 				{isError && <AlertError error={error} />}
 			</section>
 		</>

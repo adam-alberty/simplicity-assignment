@@ -6,7 +6,18 @@ export async function apiFetch<T>(
 	path: string,
 	options?: RequestInit,
 ): Promise<T> {
-	const res = await fetch(`${API_URL}${path}`, options);
+	let res: Response;
+	try {
+		res = await fetch(`${API_URL}${path}`, options);
+	} catch (err) {
+		console.log(err);
+
+		if (err instanceof Error) {
+			throw new ApiError("API request error", err.message, 0, null);
+		}
+
+		throw new ApiError("API request error", "Unknown error", 0, null);
+	}
 
 	if (!res.ok) {
 		const data = await res.json();
