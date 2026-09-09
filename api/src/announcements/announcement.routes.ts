@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import type { AnnouncementService } from "./announcement.service.js";
 import { AppError } from "../errors/error.js";
+import type { AnnouncementService } from "./announcement.service.js";
 
 export function createAnnouncementRoutes(
 	announcementService: AnnouncementService,

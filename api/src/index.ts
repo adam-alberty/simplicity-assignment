@@ -1,18 +1,17 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { AnnouncementRepository } from "./announcements/announcement.repository.js";
 import { createAnnouncementRoutes } from "./announcements/announcement.routes.js";
 import { AnnouncementService } from "./announcements/announcement.service.js";
+import { AnnouncementCategoryRepository } from "./announcements/categories/category.repository.js";
+import { createAnnouncementCategoryRoutes } from "./announcements/categories/category.routes.js";
+import { AnnouncementCategoryService } from "./announcements/categories/category.service.js";
 import { db, mustConnectToDatabase } from "./db/index.js";
-import { cors } from "hono/cors";
 import { handleError } from "./errors/error-handler.js";
 
 await mustConnectToDatabase();
-
-const announcementRepository = new AnnouncementRepository(db);
-const announcementService = new AnnouncementService(announcementRepository);
-const announcementRoutes = createAnnouncementRoutes(announcementService);
 
 const app = new Hono();
 
@@ -21,7 +20,22 @@ app.onError(handleError);
 
 const API_PREFIX = "/api/v1";
 
+// Announcements
+const announcementRepository = new AnnouncementRepository(db);
+const announcementService = new AnnouncementService(announcementRepository);
+const announcementRoutes = createAnnouncementRoutes(announcementService);
 app.route(`${API_PREFIX}/announcements`, announcementRoutes);
+
+// Announcement categories
+const announcementCategoryRepository = new AnnouncementCategoryRepository(db);
+const announcementCategoryService = new AnnouncementCategoryService(
+	announcementCategoryRepository,
+);
+const announcementCategoryRoutes = createAnnouncementCategoryRoutes(
+	announcementCategoryService,
+);
+
+app.route(`${API_PREFIX}/announcement-categories`, announcementCategoryRoutes);
 
 app.get("/healthz", (c) => {
 	c.status(200);

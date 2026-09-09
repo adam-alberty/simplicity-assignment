@@ -1,11 +1,11 @@
 import { defineRelations } from "drizzle-orm";
 import {
 	primaryKey,
+	snakeCase,
 	text,
 	timestamp,
 	uuid,
 	varchar,
-	snakeCase,
 } from "drizzle-orm/pg-core";
 
 export const announcementsTable = snakeCase.table("announcements", {
@@ -37,19 +37,21 @@ export const announcementsToCategoriesTable = snakeCase.table(
 export const relations = defineRelations(
 	{
 		announcements: announcementsTable,
-		categories: categoriesTable,
+		announcementCategories: categoriesTable,
 		announcementsToCategories: announcementsToCategoriesTable,
 	},
 	(r) => ({
 		announcements: {
-			categories: r.many.categories({
+			categories: r.many.announcementCategories({
 				from: r.announcements.id.through(
 					r.announcementsToCategories.announcementId,
 				),
-				to: r.categories.id.through(r.announcementsToCategories.categoryId),
+				to: r.announcementCategories.id.through(
+					r.announcementsToCategories.categoryId,
+				),
 			}),
 		},
-		categires: {
+		categories: {
 			announcements: r.many.announcements(),
 		},
 	}),

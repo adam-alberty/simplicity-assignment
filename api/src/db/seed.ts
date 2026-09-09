@@ -1,11 +1,11 @@
 import "dotenv/config";
+import { faker } from "@faker-js/faker";
 import { db } from "./index.js";
 import {
 	announcementsTable,
 	announcementsToCategoriesTable,
 	categoriesTable,
 } from "./schema.js";
-import { faker } from "@faker-js/faker";
 
 async function seed() {
 	const announcementCategories = [

@@ -34,6 +34,7 @@ export class AnnouncementRepository {
 			with: {
 				categories: true,
 			},
+			orderBy: (t, { desc }) => desc(t.updatedAt),
 		});
 
 		return announcements;

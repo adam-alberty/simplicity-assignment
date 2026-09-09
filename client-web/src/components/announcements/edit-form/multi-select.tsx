@@ -1,3 +1,4 @@
+import type { AnnouncementCategory } from "#/lib/announcements/types";
 import {
 	Combobox,
 	ComboboxChip,
@@ -11,30 +12,26 @@ import {
 	useComboboxAnchor,
 } from "@/components/ui/combobox";
 
-const frameworks = [
-	"Next.js",
-	"SvelteKit",
-	"Nuxt.js",
-	"Remix",
-	"Astro",
-] as const;
-
-export function ComboboxMultiple() {
+export function CategoriesSelect({
+	categories,
+}: {
+	categories: AnnouncementCategory[];
+}) {
 	const anchor = useComboboxAnchor();
 
 	return (
 		<Combobox
 			multiple
 			autoHighlight
-			items={frameworks}
-			defaultValue={[frameworks[0]]}
+			items={categories}
+			defaultValue={[categories[0]]}
 		>
-			<ComboboxChips ref={anchor} className="w-full max-w-xs">
+			<ComboboxChips ref={anchor} className="w-full">
 				<ComboboxValue>
-					{(values) => (
+					{(values: AnnouncementCategory[]) => (
 						<>
-							{values.map((value: string) => (
-								<ComboboxChip key={value}>{value}</ComboboxChip>
+							{values.map((cat) => (
+								<ComboboxChip key={cat.id}>{cat.name}</ComboboxChip>
 							))}
 							<ComboboxChipsInput />
 						</>
@@ -44,9 +41,9 @@ export function ComboboxMultiple() {
 			<ComboboxContent anchor={anchor}>
 				<ComboboxEmpty>No items found.</ComboboxEmpty>
 				<ComboboxList>
-					{(item) => (
-						<ComboboxItem key={item} value={item}>
-							{item}
+					{(item: AnnouncementCategory) => (
+						<ComboboxItem key={item.id} value={item}>
+							{item.name}
 						</ComboboxItem>
 					)}
 				</ComboboxList>

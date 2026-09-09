@@ -1,6 +1,6 @@
 import { AlertCircleIcon } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ApiError } from "#/lib/api/error";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export function AlertError({ error }: { error: Error }) {
 	let errorTitle = error.name;

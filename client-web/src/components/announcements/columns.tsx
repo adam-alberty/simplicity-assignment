@@ -1,10 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Pen } from "lucide-react";
+import type { Announcement } from "#/lib/announcements/types";
 import Time from "../time";
 import { Button } from "../ui/button";
 import type { DataTableFeatures } from "./table-features";
-import type { Announcement } from "#/lib/announcements/types";
 
 // Use `accessor` for data columns and `display` for columns without one.
 const columnHelper = createColumnHelper<DataTableFeatures, Announcement>();

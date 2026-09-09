@@ -1,5 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import * as z from "zod";
+import type { Announcement } from "#/lib/announcements/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -10,32 +11,30 @@ import {
 	FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-	InputGroup,
-	InputGroupAddon,
-	InputGroupText,
-	InputGroupTextarea,
-} from "@/components/ui/input-group";
+import { InputGroup, InputGroupTextarea } from "@/components/ui/input-group";
+import { CategoriesSelect } from "./multi-select";
 
 const formSchema = z.object({
 	title: z.string(),
 	content: z.string(),
 	categoryIds: z.array(z.string()),
-	publicationDate: z.date(),
+	publishedAt: z.date(),
 });
 
-export function EditForm() {
+export function EditForm({ announcement }: { announcement: Announcement }) {
 	const form = useForm({
 		defaultValues: {
-			title: "",
-			content: "",
-			categoryIds: [crypto.randomUUID()],
-			publicationDate: new Date(),
+			title: announcement.title,
+			content: announcement.content,
+			categoryIds: announcement.categories.map((c) => c.id),
+			publishedAt: announcement.publishedAt,
 		},
 		validators: {
 			onSubmit: formSchema,
 		},
-		onSubmit: async ({ value }) => {},
+		onSubmit: async ({ value }) => {
+			console.log(value);
+		},
 	});
 
 	return (
@@ -94,16 +93,58 @@ export function EditForm() {
 												className="min-h-24 resize-none"
 												aria-invalid={isInvalid}
 											/>
-											<InputGroupAddon align="block-end">
-												<InputGroupText className="tabular-nums">
-													{field.state.value.length}/100 characters
-												</InputGroupText>
-											</InputGroupAddon>
 										</InputGroup>
+										{isInvalid && (
+											<FieldError errors={field.state.meta.errors} />
+										)}
+									</Field>
+								);
+							}}
+						/>
+
+						<form.Field
+							name="categoryIds"
+							children={(field) => {
+								const isInvalid =
+									field.state.meta.isTouched && !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid}>
+										<FieldLabel htmlFor={field.name}>Category</FieldLabel>
 										<FieldDescription>
-											Include steps to reproduce, expected behavior, and what
-											actually happened.
+											Select category so readers know what your announcement is
+											about.
 										</FieldDescription>
+
+										<CategoriesSelect
+											categories={[{ id: "asdfasdf", name: "testing" }]}
+										/>
+
+										{isInvalid && (
+											<FieldError errors={field.state.meta.errors} />
+										)}
+									</Field>
+								);
+							}}
+						/>
+
+						<form.Field
+							name="publishedAt"
+							children={(field) => {
+								const isInvalid =
+									field.state.meta.isTouched && !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid}>
+										<FieldLabel htmlFor={field.name}>Title</FieldLabel>
+										<Input
+											id={field.name}
+											name={field.name}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											aria-invalid={isInvalid}
+											placeholder=""
+											autoComplete="off"
+										/>
 										{isInvalid && (
 											<FieldError errors={field.state.meta.errors} />
 										)}
