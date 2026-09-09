@@ -4,7 +4,9 @@ import { logger } from "hono/logger";
 import { AnnouncementRepository } from "./announcements/announcement.repository.js";
 import { createAnnouncementRoutes } from "./announcements/announcement.routes.js";
 import { AnnouncementService } from "./announcements/announcement.service.js";
-import { db } from "./db/index.js";
+import { db, mustConnectToDatabase } from "./db/index.js";
+
+await mustConnectToDatabase();
 
 const announcementRepository = new AnnouncementRepository(db);
 const announcementService = new AnnouncementService(announcementRepository);
