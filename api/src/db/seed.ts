@@ -7,7 +7,13 @@ import {
 	categoriesTable,
 } from "./schema.js";
 
-async function seed() {
+export async function seedDatabase() {
+	const existingCategories = await db.select().from(categoriesTable).limit(1);
+	if (existingCategories.length) {
+		console.log("Database already seeded, skipping seeding.");
+		return;
+	}
+
 	const announcementCategories = [
 		"Community Events",
 		"Crime & Safety",
@@ -73,7 +79,5 @@ async function seed() {
 			.returning();
 	}
 
-	console.log("Seed complete");
+	console.log("✅ Seed complete");
 }
-
-await seed();

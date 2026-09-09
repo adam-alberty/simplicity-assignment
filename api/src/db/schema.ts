@@ -22,7 +22,7 @@ export const categoriesTable = snakeCase.table("categories", {
 });
 
 export const announcementsToCategoriesTable = snakeCase.table(
-	"announcements_to_categories",
+	"announcement_categories",
 	{
 		announcementId: uuid("announcement_id")
 			.notNull()

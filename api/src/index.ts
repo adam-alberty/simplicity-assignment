@@ -10,8 +10,10 @@ import { createAnnouncementCategoryRoutes } from "./announcements/categories/cat
 import { AnnouncementCategoryService } from "./announcements/categories/category.service.js";
 import { db, mustConnectToDatabase } from "./db/index.js";
 import { handleError } from "./errors/error-handler.js";
+import { seedDatabase } from "./db/seed.js";
 
 await mustConnectToDatabase();
+await seedDatabase();
 
 const app = new Hono();
 
@@ -34,9 +36,9 @@ const announcementCategoryService = new AnnouncementCategoryService(
 const announcementCategoryRoutes = createAnnouncementCategoryRoutes(
 	announcementCategoryService,
 );
-
 app.route(`${API_PREFIX}/announcement-categories`, announcementCategoryRoutes);
 
+// Healthcheck endpoint
 app.get("/healthz", (c) => {
 	c.status(200);
 	return c.text("ok");

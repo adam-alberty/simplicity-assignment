@@ -23,10 +23,20 @@ FROM node:lts
 
 WORKDIR /app
 
+RUN corepack enable
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./package.json
 
+# Needed for Drizzle migrations
+COPY --from=build /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
+COPY --from=build /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=build /app/src ./src
+
 EXPOSE 8080
 
-CMD [ "node", "dist/index.js" ]
+CMD ["sh", "-c", "pnpm db:push && node dist/index.js"]
+# CMD [ "node", "dist/index.js" ]
