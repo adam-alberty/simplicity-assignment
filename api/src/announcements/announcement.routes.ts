@@ -13,16 +13,19 @@ export function createAnnouncementRoutes(
 		const validated = z
 			.object({
 				queryParamLimit: z.coerce.number().min(1).max(100),
+				queryParamCursor: z.coerce.date().optional(),
 			})
-			.parse({ queryParamLimit: c.req.query("limit") });
+			.parse({
+				queryParamLimit: c.req.query("limit") ?? 100,
+				queryParamCursor: c.req.query("cursor"),
+			});
 
 		const announcements = await announcementService.list(
 			validated.queryParamLimit,
+			validated.queryParamCursor,
 		);
 
-		return c.json({
-			announcements,
-		});
+		return c.json(announcements);
 	});
 
 	app.get("/:id", async (c) => {

@@ -19,7 +19,7 @@ export function AppSidebar() {
 		<Sidebar>
 			<SidebarHeader>
 				<Link
-					className="inline-flex gap-2 items-center font-bold text-xl"
+					className="inline-flex gap-2 items-center font-bold text-xl py-3"
 					to="/"
 				>
 					<img src={Logo} alt="logo" className="w-10" />
@@ -31,23 +31,7 @@ export function AppSidebar() {
 					<SidebarMenu>
 						<SidebarMenuItem>
 							<SidebarMenuButton
-								render={
-									<Link
-										className={
-											matchRoute({ to: "/", fuzzy: true })
-												? "bg-primary! text-primary-foreground!"
-												: ""
-										}
-										to="/"
-									/>
-								}
-							>
-								<Home />
-								Home
-							</SidebarMenuButton>
-						</SidebarMenuItem>
-						<SidebarMenuItem>
-							<SidebarMenuButton
+								size="lg"
 								render={
 									<Link
 										to="/announcements"

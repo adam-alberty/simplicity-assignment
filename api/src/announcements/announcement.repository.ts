@@ -37,18 +37,40 @@ export class AnnouncementRepository {
 		};
 	}
 
-	async list(limit: number): Promise<Announcement[]> {
+	async list(limit: number, cursorUpdatedAt?: Date) {
 		const announcements = await this.db.query.announcements.findMany({
 			with: {
 				categories: {
 					orderBy: (categories, { asc }) => asc(categories.name),
 				},
 			},
+
+			where: cursorUpdatedAt
+				? {
+						updatedAt: {
+							lt: cursorUpdatedAt,
+						},
+					}
+				: undefined,
+
 			orderBy: (t, { desc }) => desc(t.updatedAt),
-			limit,
+			limit: limit + 1,
 		});
 
-		return announcements;
+		const hasMore = announcements.length > limit;
+		const data = announcements.slice(0, limit);
+
+		const last = data.at(-1);
+
+		return {
+			announcements: data,
+			nextCursor:
+				hasMore && last
+					? {
+							updatedAt: last.updatedAt,
+						}
+					: null,
+		};
 	}
 
 	async update(id: string, announcement: EditAnnouncementInput) {

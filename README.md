@@ -19,14 +19,12 @@ Technologies used:
 
 REST API server is located at [./api](./api).
 
-
 Technologies used:
 - **Hono + TypeScript**
 - **Drizzle** with node-postgres for database access
 - **Drizzle Kit** for database schema migrations
 - **Zod** for data validation
 - **Faker** for dummy data
-
 
 
 ## How to run
@@ -63,7 +61,3 @@ PostgreSQL database is used for data storage.
 ### Database diagram
 
 ![Database diagram](./docs/database-diagram.png)
-
-### ORM
-
-Drizzle is used as an ORM/Query builder.
