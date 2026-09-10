@@ -14,7 +14,7 @@ interface DataTableProps<TData extends RowData> {
 	data: TData[];
 }
 
-export function AnnoucementsTable<TData extends RowData>({
+export function AnnouncementsTable<TData extends RowData>({
 	columns,
 	data,
 }: DataTableProps<TData>) {

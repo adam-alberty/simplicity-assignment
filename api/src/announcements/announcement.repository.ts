@@ -57,19 +57,28 @@ export class AnnouncementRepository {
 			limit: limit + 1,
 		});
 
+		const prevAnnouncements = await this.db.query.announcements.findMany({
+			where: cursorUpdatedAt
+				? {
+						updatedAt: {
+							gt: cursorUpdatedAt,
+						},
+					}
+				: undefined,
+			orderBy: (t, { asc }) => asc(t.updatedAt),
+			limit: limit + 1,
+		});
+
 		const hasMore = announcements.length > limit;
 		const data = announcements.slice(0, limit);
-
 		const last = data.at(-1);
+
+		const hasPrevious = prevAnnouncements.length > 0;
 
 		return {
 			announcements: data,
-			nextCursor:
-				hasMore && last
-					? {
-							updatedAt: last.updatedAt,
-						}
-					: null,
+			nextCursor: hasMore && last ? last.updatedAt : null,
+			prevCursor: hasPrevious ? prevAnnouncements.at(-1)?.updatedAt : null,
 		};
 	}
 

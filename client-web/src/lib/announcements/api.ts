@@ -3,19 +3,38 @@ import type { Announcement, AnnouncementCategory } from "./types";
 
 type ListAnnouncementsResponse = {
 	announcements: Announcement[];
+	nextCursor: string;
+	prevCursor: string;
 };
 
-export async function listAnnouncements(): Promise<Announcement[]> {
-	const res = await apiFetch<ListAnnouncementsResponse>("/announcements");
+export async function listAnnouncements(
+	cursor?: string,
+	limit = 100,
+): Promise<ListAnnouncementsResponse> {
+	const params = new URLSearchParams();
 
-	return res.announcements.map((announcement) => ({
-		id: announcement.id,
-		title: announcement.title,
-		content: announcement.content,
-		categories: announcement.categories,
-		publishedAt: new Date(announcement.publishedAt),
-		updatedAt: new Date(announcement.updatedAt),
-	}));
+	params.set("limit", limit.toString());
+
+	if (cursor) {
+		params.set("cursor", cursor);
+	}
+
+	const res = await apiFetch<ListAnnouncementsResponse>(
+		`/announcements?${params.toString()}`,
+	);
+
+	return {
+		announcements: res.announcements.map((announcement) => ({
+			id: announcement.id,
+			title: announcement.title,
+			content: announcement.content,
+			categories: announcement.categories,
+			publishedAt: new Date(announcement.publishedAt),
+			updatedAt: new Date(announcement.updatedAt),
+		})),
+		nextCursor: res.nextCursor,
+		prevCursor: res.prevCursor,
+	};
 }
 
 type GetOneAnnouncementResponse = Announcement;
