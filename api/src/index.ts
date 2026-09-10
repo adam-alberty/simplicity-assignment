@@ -9,8 +9,8 @@ import { AnnouncementCategoryRepository } from "./announcements/categories/categ
 import { createAnnouncementCategoryRoutes } from "./announcements/categories/category.routes.js";
 import { AnnouncementCategoryService } from "./announcements/categories/category.service.js";
 import { db, mustConnectToDatabase } from "./db/index.js";
-import { handleError } from "./errors/error-handler.js";
 import { seedDatabase } from "./db/seed.js";
+import { handleError } from "./errors/error-handler.js";
 
 await mustConnectToDatabase();
 await seedDatabase();

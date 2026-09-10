@@ -1,12 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { getAnnouncementCategories } from "#/lib/announcements/api";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Field, FieldGroup, FieldLabel } from "../ui/field";
-import { useState } from "react";
-import { Button } from "../ui/button";
 import { Filter } from "lucide-react";
-import { Card, CardContent } from "../ui/card";
+import { getAnnouncementCategories } from "#/lib/announcements/api";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Field, FieldLabel } from "../ui/field";
 
 export function AnnouncementCategoriesFiltering() {
 	// TODO handle errors
@@ -20,74 +23,63 @@ export function AnnouncementCategoriesFiltering() {
 	});
 	const navigate = useNavigate({ from: "/announcements/" });
 
-	const [filteringOpen, setFilteringOpen] = useState(false);
-
 	return data ? (
-		<div>
-			<div className="flex">
-				<Button
-					className="mb-2"
-					onClick={() => setFilteringOpen(!filteringOpen)}
-				>
-					<Filter />
-					Filter
-				</Button>
-			</div>
+		<DropdownMenu>
+			<DropdownMenuTrigger render={<Button variant="outline" />}>
+				<Filter />
+				{selectedCategories && selectedCategories.length > 0 ? (
+					<>
+						{selectedCategories.length}{" "}
+						{`categor${selectedCategories.length > 1 ? "ies" : "y"}`} selected
+					</>
+				) : (
+					<>Filter categories</>
+				)}
+			</DropdownMenuTrigger>
+			<DropdownMenuContent>
+				{data.map((cat) => (
+					<Field className="py-1" key={cat.id} orientation="horizontal">
+						<Checkbox
+							id={`filter-category-${cat.id}`}
+							name={`filter-category-${cat.id}`}
+							checked={
+								selectedCategories ? selectedCategories.includes(cat.id) : false
+							}
+							onCheckedChange={(checked) => {
+								if (checked) {
+									navigate({
+										search: (prev) => ({
+											...prev,
+											cursor: undefined,
+											categories: prev.categories
+												? [...prev.categories, cat.id]
+												: [cat.id],
+										}),
+									});
+								} else {
+									navigate({
+										search: (prev) => {
+											const categories = prev.categories?.filter(
+												(catId) => catId !== cat.id,
+											);
 
-			{filteringOpen && (
-				<Card className="mb-5">
-					<CardContent>
-						<FieldGroup className="grid grid-cols-4">
-							{data.map((cat) => (
-								<Field key={cat.id} orientation="horizontal">
-									<Checkbox
-										id={`filter-category-${cat.id}`}
-										name={`filter-category-${cat.id}`}
-										checked={
-											selectedCategories
-												? selectedCategories.includes(cat.id)
-												: false
-										}
-										onCheckedChange={(checked) => {
-											if (checked) {
-												navigate({
-													search: (prev) => ({
-														...prev,
-														cursor: undefined,
-														categories: prev.categories
-															? [...prev.categories, cat.id]
-															: [cat.id],
-													}),
-												});
-											} else {
-												navigate({
-													search: (prev) => {
-														const categories = prev.categories?.filter(
-															(catId) => catId !== cat.id,
-														);
-
-														return {
-															...prev,
-															cursor: undefined,
-															categories: categories?.length
-																? categories
-																: undefined,
-														};
-													},
-												});
-											}
-										}}
-									/>
-									<FieldLabel htmlFor={`filter-category-${cat.id}`}>
-										{cat.name}
-									</FieldLabel>
-								</Field>
-							))}
-						</FieldGroup>
-					</CardContent>
-				</Card>
-			)}
-		</div>
+											return {
+												...prev,
+												cursor: undefined,
+												categories: categories?.length ? categories : undefined,
+											};
+										},
+									});
+								}
+							}}
+						/>
+						<FieldLabel htmlFor={`filter-category-${cat.id}`}>
+							{cat.name}
+						</FieldLabel>
+					</Field>
+				))}
+			</DropdownMenuContent>
+		</DropdownMenu>
 	) : (
 		<div>Loading</div>
 	);

@@ -10,11 +10,16 @@ type ListAnnouncementsResponse = {
 export async function listAnnouncements(
 	filter: {
 		categories?: string[];
+		query?: string;
 	},
 	cursor?: string,
 	limit = 100,
 ): Promise<ListAnnouncementsResponse> {
 	const params = new URLSearchParams();
+
+	if (filter.query) {
+		params.set("query", filter.query);
+	}
 
 	params.set("limit", limit.toString());
 

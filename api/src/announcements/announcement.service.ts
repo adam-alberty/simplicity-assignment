@@ -7,6 +7,7 @@ export class AnnouncementService {
 	async list(
 		limit: number,
 		filter: {
+			query?: string;
 			categories?: string[];
 		},
 		cursor?: Date,

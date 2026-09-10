@@ -4,6 +4,7 @@ import z from "zod";
 import { AlertError } from "#/components/alert-error";
 import { columns } from "#/components/announcements/columns";
 import { AnnouncementCategoriesFiltering } from "#/components/announcements/filtering";
+import { AnnouncementSearch } from "#/components/announcements/search";
 import { AnnouncementsTable } from "#/components/announcements/table";
 import { TableSkeleton } from "#/components/table-skeleton";
 import { Button } from "#/components/ui/button";
@@ -13,17 +14,18 @@ export const Route = createFileRoute("/(app)/announcements/")({
 	validateSearch: z.object({
 		cursor: z.string().optional(),
 		categories: z.array(z.uuid()).optional(),
+		query: z.string().optional(),
 	}),
 	component: RouteComponent,
 });
 
 function RouteComponent() {
-	const { cursor, categories } = Route.useSearch();
+	const { cursor, categories, query } = Route.useSearch();
 	const navigate = useNavigate({ from: "/announcements/" });
 
 	const { isPending, isError, error, data } = useQuery({
-		queryKey: ["announcements", categories, cursor],
-		queryFn: () => listAnnouncements({ categories }, cursor, 50),
+		queryKey: ["announcements", query, categories, cursor],
+		queryFn: () => listAnnouncements({ categories, query }, cursor, 50),
 	});
 
 	return (
@@ -31,7 +33,10 @@ function RouteComponent() {
 			<div className="text-2xl font-bold">Announcements</div>
 
 			<section className="mt-10">
-				<AnnouncementCategoriesFiltering />
+				<div className="flex gap-3 items-end mb-5">
+					<AnnouncementSearch />
+					<AnnouncementCategoriesFiltering />
+				</div>
 
 				{isPending && <TableSkeleton />}
 				{data && (

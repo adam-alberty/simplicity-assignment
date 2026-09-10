@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { Database } from "../db/index.js";
 import {
 	announcementsTable,
@@ -40,6 +40,7 @@ export class AnnouncementRepository {
 	async list(
 		limit: number,
 		filter: {
+			query?: string;
 			categories?: string[];
 		},
 		cursorUpdatedAt?: Date,
@@ -61,6 +62,9 @@ export class AnnouncementRepository {
 								in: filter.categories,
 							},
 						},
+						RAW: filter.query
+							? (_t) => sql`ILIKE '%${filter.query}%'`
+							: undefined,
 					}
 				: {
 						categories: {
@@ -68,6 +72,9 @@ export class AnnouncementRepository {
 								in: filter.categories,
 							},
 						},
+						// RAW: filter.query
+						// 	? (t) => sql`${t.title} ILIKE '%${filter.query}%'`
+						// 	: undefined,
 					},
 
 			orderBy: (t, { desc }) => desc(t.updatedAt),

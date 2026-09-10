@@ -5,11 +5,7 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/announcements?limit=100"
-  params:
-    - name: limit
-      value: "100"
-      type: query
+  url: "{{baseUrl}}/announcement-categories"
   auth: inherit
 
 settings:

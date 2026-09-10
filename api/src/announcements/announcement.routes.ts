@@ -15,17 +15,20 @@ export function createAnnouncementRoutes(
 				queryParamLimit: z.coerce.number().min(1).max(100),
 				queryParamCursor: z.coerce.date().optional(),
 				queryParamCategories: z.array(z.uuid()).optional(),
+				queryParamSearchQuery: z.string().optional(),
 			})
 			.parse({
 				queryParamLimit: c.req.query("limit") ?? 100,
 				queryParamCursor: c.req.query("cursor"),
 				queryParamCategories: c.req.queries("category"),
+				queryParamSearchQuery: c.req.query("query"),
 			});
 
 		const announcements = await announcementService.list(
 			validated.queryParamLimit,
 			{
 				categories: validated.queryParamCategories,
+				query: validated.queryParamSearchQuery,
 			},
 			validated.queryParamCursor,
 		);
