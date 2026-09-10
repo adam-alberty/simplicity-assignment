@@ -4,6 +4,7 @@ import { Pen } from "lucide-react";
 import type { Announcement } from "#/lib/announcements/types";
 import Time from "../time";
 import { Button } from "../ui/button";
+import { AnnouncementDeletionDialog } from "./deletion-dialog";
 import type { DataTableFeatures } from "./table-features";
 
 // Use `accessor` for data columns and `display` for columns without one.
@@ -45,6 +46,8 @@ export const columns = columnHelper.columns([
 				>
 					<Pen />
 				</Button>
+
+				<AnnouncementDeletionDialog id={getValue()} />
 			</div>
 		),
 	}),

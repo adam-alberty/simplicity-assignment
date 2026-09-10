@@ -1,5 +1,5 @@
 import { Link, useMatchRoute } from "@tanstack/react-router";
-import { Home, Megaphone } from "lucide-react";
+import { Megaphone } from "lucide-react";
 import Logo from "@/assets/logo.svg";
 import {
 	Sidebar,

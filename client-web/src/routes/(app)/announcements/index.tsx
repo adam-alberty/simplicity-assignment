@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import z from "zod";
 import { AlertError } from "#/components/alert-error";
 import { columns } from "#/components/announcements/columns";
 import { AnnouncementsTable } from "#/components/announcements/table";
 import { TableSkeleton } from "#/components/table-skeleton";
-import { listAnnouncements } from "#/lib/announcements/api";
-import z from "zod";
 import { Button } from "#/components/ui/button";
+import { listAnnouncements } from "#/lib/announcements/api";
 
 export const Route = createFileRoute("/(app)/announcements/")({
 	validateSearch: z.object({

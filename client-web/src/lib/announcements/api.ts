@@ -92,3 +92,7 @@ export async function editAnnouncement(
 		{ method: "PATCH", body: JSON.stringify(reqBody) },
 	);
 }
+
+export async function deleteAnnouncement(id: string) {
+	return await apiFetch(`/announcements/${id}`, { method: "DELETE" });
+}
