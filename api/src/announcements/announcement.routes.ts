@@ -10,7 +10,15 @@ export function createAnnouncementRoutes(
 	const app = new Hono();
 
 	app.get("/", async (c) => {
-		const announcements = await announcementService.listAnnouncements();
+		const validated = z
+			.object({
+				queryParamLimit: z.coerce.number().min(1).max(100),
+			})
+			.parse({ queryParamLimit: c.req.query("limit") });
+
+		const announcements = await announcementService.list(
+			validated.queryParamLimit,
+		);
 
 		return c.json({
 			announcements,
@@ -18,7 +26,15 @@ export function createAnnouncementRoutes(
 	});
 
 	app.get("/:id", async (c) => {
-		const announcement = await announcementService.findById(c.req.param("id"));
+		const validated = z
+			.object({
+				announcementId: z.uuid(),
+			})
+			.parse({ announcementId: c.req.param("id") });
+
+		const announcement = await announcementService.findById(
+			validated.announcementId,
+		);
 		if (!announcement) {
 			throw new AppError(
 				"Announcement not found",
@@ -31,9 +47,27 @@ export function createAnnouncementRoutes(
 	});
 
 	app.patch("/:id", async (c) => {
+		const validated = z
+			.object({
+				announcementId: z.uuid(),
+			})
+			.parse({ announcementId: c.req.param("id") });
+
 		const parsedBody = z.parse(editAnnouncementSchema, await c.req.json());
 
-		await announcementService.edit(c.req.param("id"), parsedBody);
+		await announcementService.update(validated.announcementId, parsedBody);
+
+		return c.json({ success: true });
+	});
+
+	app.delete("/:id", async (c) => {
+		const validated = z
+			.object({
+				announcementId: z.uuid(),
+			})
+			.parse({ announcementId: c.req.param("id") });
+
+		await announcementService.delete(validated.announcementId);
 
 		return c.json({ success: true });
 	});

@@ -37,18 +37,21 @@ export class AnnouncementRepository {
 		};
 	}
 
-	async list(): Promise<Announcement[]> {
+	async list(limit: number): Promise<Announcement[]> {
 		const announcements = await this.db.query.announcements.findMany({
 			with: {
-				categories: true,
+				categories: {
+					orderBy: (categories, { asc }) => asc(categories.name),
+				},
 			},
 			orderBy: (t, { desc }) => desc(t.updatedAt),
+			limit,
 		});
 
 		return announcements;
 	}
 
-	async editById(id: string, announcement: EditAnnouncementInput) {
+	async update(id: string, announcement: EditAnnouncementInput) {
 		await this.db.transaction(async (tx) => {
 			const [editedAnnouncement] = await tx
 				.update(announcementsTable)
@@ -80,5 +83,11 @@ export class AnnouncementRepository {
 				})),
 			);
 		});
+	}
+
+	async delete(id: string) {
+		await this.db
+			.delete(announcementsTable)
+			.where(eq(announcementsTable.id, id));
 	}
 }

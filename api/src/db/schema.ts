@@ -26,10 +26,14 @@ export const announcementsToCategoriesTable = snakeCase.table(
 	{
 		announcementId: uuid("announcement_id")
 			.notNull()
-			.references(() => announcementsTable.id),
+			.references(() => announcementsTable.id, {
+				onDelete: "cascade",
+			}),
 		categoryId: uuid("category_id")
 			.notNull()
-			.references(() => categoriesTable.id),
+			.references(() => categoriesTable.id, {
+				onDelete: "cascade",
+			}),
 	},
 	(t) => [primaryKey({ columns: [t.announcementId, t.categoryId] })],
 );

@@ -39,18 +39,21 @@ The above command builds both API and web client for production and starts the s
 
 On first startup, the API service will push the database schema and seed dummy data.
 
-The web client will be on [http://localhost:3000](http://localhost:3000).
-API server will be on [http://localhost:8080](http://localhost:8080).
+The web client is on [http://localhost:3000](http://localhost:3000).
+API server is on [http://localhost:8080](http://localhost:8080).
 
 
-## Routes
+## API Routes
 
 | Method | Route | Description |
 |--------|-------|-------------|
 | `GET` | `/api/v1/announcements` | List all announcements |
-| `GET` | `/api/v1/announcements/:id` | Get individual announcement by ID |
+| `GET` | `/api/v1/announcements/:id` | Get announcement by ID |
+| `DELETE` | `/api/v1/announcements/:id` | Delete announcement by ID |
+| `PATCH` | `/api/v1/announcements/:id` | Edit announcement by ID |
+| `GET` | `/api/v1/announcement-categories` | List announcement categories |
 
-TODO add more endpoints
+Open the Bruno Test city API collection at `./bruno` to test all endpoints.
 
 
 ## Database
