@@ -37,7 +37,13 @@ export class AnnouncementRepository {
 		};
 	}
 
-	async list(limit: number, cursorUpdatedAt?: Date) {
+	async list(
+		limit: number,
+		filter: {
+			categories?: string[];
+		},
+		cursorUpdatedAt?: Date,
+	) {
 		const announcements = await this.db.query.announcements.findMany({
 			with: {
 				categories: {
@@ -50,8 +56,19 @@ export class AnnouncementRepository {
 						updatedAt: {
 							lt: cursorUpdatedAt,
 						},
+						categories: {
+							id: {
+								in: filter.categories,
+							},
+						},
 					}
-				: undefined,
+				: {
+						categories: {
+							id: {
+								in: filter.categories,
+							},
+						},
+					},
 
 			orderBy: (t, { desc }) => desc(t.updatedAt),
 			limit: limit + 1,

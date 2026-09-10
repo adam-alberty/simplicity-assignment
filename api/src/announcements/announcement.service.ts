@@ -4,8 +4,14 @@ import type { EditAnnouncementInput } from "./announcement.schema.js";
 export class AnnouncementService {
 	constructor(private announcements: AnnouncementRepository) {}
 
-	async list(limit: number, cursor?: Date) {
-		return this.announcements.list(limit, cursor);
+	async list(
+		limit: number,
+		filter: {
+			categories?: string[];
+		},
+		cursor?: Date,
+	) {
+		return this.announcements.list(limit, filter, cursor);
 	}
 
 	async findById(id: string) {

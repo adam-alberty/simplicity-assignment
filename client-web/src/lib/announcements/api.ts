@@ -8,6 +8,9 @@ type ListAnnouncementsResponse = {
 };
 
 export async function listAnnouncements(
+	filter: {
+		categories?: string[];
+	},
 	cursor?: string,
 	limit = 100,
 ): Promise<ListAnnouncementsResponse> {
@@ -17,6 +20,12 @@ export async function listAnnouncements(
 
 	if (cursor) {
 		params.set("cursor", cursor);
+	}
+
+	if (filter.categories) {
+		filter.categories.forEach((category) => {
+			params.append("category", category);
+		});
 	}
 
 	const res = await apiFetch<ListAnnouncementsResponse>(

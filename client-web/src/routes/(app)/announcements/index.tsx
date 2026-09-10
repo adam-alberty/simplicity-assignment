@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import z from "zod";
 import { AlertError } from "#/components/alert-error";
 import { columns } from "#/components/announcements/columns";
+import { AnnouncementCategoriesFiltering } from "#/components/announcements/filtering";
 import { AnnouncementsTable } from "#/components/announcements/table";
 import { TableSkeleton } from "#/components/table-skeleton";
 import { Button } from "#/components/ui/button";
@@ -11,23 +12,27 @@ import { listAnnouncements } from "#/lib/announcements/api";
 export const Route = createFileRoute("/(app)/announcements/")({
 	validateSearch: z.object({
 		cursor: z.string().optional(),
+		categories: z.array(z.uuid()).optional(),
 	}),
 	component: RouteComponent,
 });
 
 function RouteComponent() {
-	const { cursor } = Route.useSearch();
-	const navigate = useNavigate();
+	const { cursor, categories } = Route.useSearch();
+	const navigate = useNavigate({ from: "/announcements/" });
 
 	const { isPending, isError, error, data } = useQuery({
-		queryKey: ["announcements", cursor],
-		queryFn: () => listAnnouncements(cursor, 50),
+		queryKey: ["announcements", categories, cursor],
+		queryFn: () => listAnnouncements({ categories }, cursor, 50),
 	});
 
 	return (
 		<>
 			<div className="text-2xl font-bold">Announcements</div>
+
 			<section className="mt-10">
+				<AnnouncementCategoriesFiltering />
+
 				{isPending && <TableSkeleton />}
 				{data && (
 					<>
@@ -38,10 +43,10 @@ function RouteComponent() {
 								disabled={!data?.prevCursor}
 								onClick={() =>
 									navigate({
-										to: "/announcements",
-										search: {
+										search: (prev) => ({
+											...prev,
 											cursor: data.prevCursor ? data.prevCursor : undefined,
-										},
+										}),
 									})
 								}
 							>
@@ -52,10 +57,10 @@ function RouteComponent() {
 								disabled={!data?.nextCursor}
 								onClick={() =>
 									navigate({
-										to: "/announcements",
-										search: {
+										search: (prev) => ({
+											...prev,
 											cursor: data.nextCursor ? data.nextCursor : undefined,
-										},
+										}),
 									})
 								}
 							>
