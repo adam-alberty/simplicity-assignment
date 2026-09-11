@@ -5,16 +5,10 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/announcements?limit=100&cursor=2024-05-04T15:41:24.399Z&category=03e06430-03b5-43e4-b8c5-3e288c537d11"
+  url: "{{baseUrl}}/announcements?limit=100"
   params:
     - name: limit
       value: "100"
-      type: query
-    - name: cursor
-      value: 2024-05-04T15:41:24.399Z
-      type: query
-    - name: category
-      value: 03e06430-03b5-43e4-b8c5-3e288c537d11
       type: query
   auth: inherit
 

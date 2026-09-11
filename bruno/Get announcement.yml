@@ -1,5 +1,5 @@
 info:
-  name: Get single announcement
+  name: Get announcement
   type: http
   seq: 2
 

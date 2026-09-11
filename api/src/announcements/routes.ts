@@ -1,14 +1,15 @@
 import { Hono } from "hono";
 import z from "zod";
 import { AppError } from "../errors/error.js";
-import { editAnnouncementSchema } from "./announcement.schema.js";
-import type { AnnouncementService } from "./announcement.service.js";
+import { editAnnouncementSchema } from "./schema.js";
+import type { AnnouncementService } from "./service.js";
 
 export function createAnnouncementRoutes(
 	announcementService: AnnouncementService,
 ) {
 	const app = new Hono();
 
+	// Lists announcements.
 	app.get("/", async (c) => {
 		const validated = z
 			.object({
@@ -36,6 +37,7 @@ export function createAnnouncementRoutes(
 		return c.json(announcements);
 	});
 
+	// Gets an announcement by ID.
 	app.get("/:id", async (c) => {
 		const validated = z
 			.object({
@@ -57,6 +59,7 @@ export function createAnnouncementRoutes(
 		return c.json(announcement);
 	});
 
+	// Updates an announcement.
 	app.patch("/:id", async (c) => {
 		const validated = z
 			.object({
@@ -71,6 +74,7 @@ export function createAnnouncementRoutes(
 		return c.json({ success: true });
 	});
 
+	// Deletes an announcement.
 	app.delete("/:id", async (c) => {
 		const validated = z
 			.object({

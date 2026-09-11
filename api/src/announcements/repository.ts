@@ -5,8 +5,8 @@ import {
 	announcementsToCategoriesTable,
 } from "../db/schema.js";
 import { AppError } from "../errors/error.js";
-import type { Announcement } from "./announcement.model.js";
-import type { EditAnnouncementInput } from "./announcement.schema.js";
+import type { Announcement } from "./model.js";
+import type { EditAnnouncementInput } from "./schema.js";
 
 export class AnnouncementRepository {
 	constructor(private db: Database) {}

@@ -1,5 +1,5 @@
-import type { AnnouncementRepository } from "./announcement.repository.js";
-import type { EditAnnouncementInput } from "./announcement.schema.js";
+import type { AnnouncementRepository } from "./repository.js";
+import type { EditAnnouncementInput } from "./schema.js";
 
 export class AnnouncementService {
 	constructor(private announcements: AnnouncementRepository) {}

@@ -1,0 +1,25 @@
+info:
+  name: Update announcement
+  type: http
+  seq: 3
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/announcements/aa90748c-6de6-488c-ab90-0539300b0d12"
+  body:
+    type: json
+    data: |-
+      {
+            "title": "Updated title",
+            "content": "Updated Description",
+            "publishedAt": "2026-08-24T19:20:58.680Z",
+            "categoryIds": ["b8d20323-1ab4-4bbc-9111-206d2da2942e", "66e35fca-1090-47fc-87cf-1b6b2caf8096"]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

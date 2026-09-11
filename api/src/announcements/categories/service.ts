@@ -1,4 +1,4 @@
-import type { AnnouncementCategoryRepository } from "./category.repository.js";
+import type { AnnouncementCategoryRepository } from "./repository.js";
 
 export class AnnouncementCategoryService {
 	constructor(private categories: AnnouncementCategoryRepository) {}

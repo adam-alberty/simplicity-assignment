@@ -1,4 +1,4 @@
-import type { AnnouncementCategory } from "./categories/category.model.js";
+import type { AnnouncementCategory } from "./categories/model.js";
 
 export type Announcement = {
 	id: string;

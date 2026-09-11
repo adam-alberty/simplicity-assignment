@@ -1,5 +1,5 @@
 import type { Database } from "../../db/index.js";
-import type { AnnouncementCategory } from "./category.model.js";
+import type { AnnouncementCategory } from "./model.js";
 
 export class AnnouncementCategoryRepository {
 	constructor(private db: Database) {}
