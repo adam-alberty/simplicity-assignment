@@ -145,4 +145,25 @@ export class AnnouncementRepository {
 			.delete(announcementsTable)
 			.where(eq(announcementsTable.id, id));
 	}
+
+	async create(announcement: EditAnnouncementInput) {
+		await this.db.transaction(async (tx) => {
+			const [newAnnouncement] = await tx
+				.insert(announcementsTable)
+				.values({
+					title: announcement.title,
+					content: announcement.content,
+					publishedAt: announcement.publishedAt,
+					updatedAt: new Date(),
+				})
+				.returning();
+
+			await tx.insert(announcementsToCategoriesTable).values(
+				announcement.categoryIds.map((categoryId) => ({
+					announcementId: newAnnouncement.id,
+					categoryId,
+				})),
+			);
+		});
+	}
 }

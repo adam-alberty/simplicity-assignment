@@ -59,6 +59,14 @@ export function createAnnouncementRoutes(
 		return c.json(announcement);
 	});
 
+	// Creates an announcement.
+	app.post("/", async (c) => {
+		const parsedBody = z.parse(editAnnouncementSchema, await c.req.json());
+		await announcementService.create(parsedBody);
+
+		return c.json({ success: true });
+	});
+
 	// Updates an announcement.
 	app.patch("/:id", async (c) => {
 		const validated = z

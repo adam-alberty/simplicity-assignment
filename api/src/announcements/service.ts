@@ -2,7 +2,19 @@ import type { AnnouncementRepository } from "./repository.js";
 import type { EditAnnouncementInput } from "./schema.js";
 
 export class AnnouncementService {
-	constructor(private announcements: AnnouncementRepository) {}
+	constructor(
+		private announcements: AnnouncementRepository,
+		private broadcast: (message: unknown) => void,
+	) {}
+
+	async create(announcement: EditAnnouncementInput) {
+		await this.announcements.create(announcement);
+
+		this.broadcast({
+			type: "announcement.created",
+			data: `${announcement.title}`,
+		});
+	}
 
 	async list(
 		limit: number,

@@ -25,6 +25,7 @@ Technologies used:
 - **Drizzle Kit** for database schema migrations
 - **Zod** for data validation
 - **Faker** for dummy data
+- **ws** for websockets
 
 
 ## How to run

@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_API_URL: http://localhost:8080
+        VITE_WEBSOCKET_URL: ws://localhost:8080
     ports:
       - 3000:80
     security_opt:
