@@ -1,10 +1,9 @@
-import { serve, upgradeWebSocket } from "@hono/node-server";
+import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { WebSocketServer } from "ws";
-import { db, mustConnectToDatabase } from "@/db/index.js";
-import { seedDatabase } from "@/db/seed.js";
+import { initializeDatabase } from "@/db/index.js";
 import { handleError } from "@/errors/handler.js";
 import { AnnouncementCategoryRepository } from "@/modules/announcements/categories/repository.js";
 import { createAnnouncementCategoryRoutes } from "@/modules/announcements/categories/routes.js";
@@ -13,9 +12,16 @@ import { AnnouncementRepository } from "@/modules/announcements/repository.js";
 import { createAnnouncementRoutes } from "@/modules/announcements/routes.js";
 import { AnnouncementService } from "@/modules/announcements/service.js";
 import { WebSocketManager } from "@/websocket/manager.js";
+import { seedDatabase } from "./db/seed.js";
+import { createHealthRoutes } from "./health/routes.js";
+import { AnnouncementSearchRepository } from "./modules/announcements/search/repository.js";
+import { initializeSearch } from "./typesense/index.js";
+import { createWebSocketRoutes } from "./websocket/routes.js";
 
-await mustConnectToDatabase();
-await seedDatabase();
+const dbClient = await initializeDatabase();
+const searchClient = await initializeSearch();
+
+await seedDatabase(dbClient, searchClient);
 
 const app = new Hono();
 
@@ -30,43 +36,33 @@ const API_PREFIX = "/api/v1";
 const wsManager = new WebSocketManager();
 
 // Announcements
-const announcementRepository = new AnnouncementRepository(db);
+const announcementRepository = new AnnouncementRepository(dbClient);
+const announcementSearchRepository = new AnnouncementSearchRepository(
+	searchClient,
+);
 const announcementService = new AnnouncementService(
 	announcementRepository,
+	announcementSearchRepository,
 	wsManager.broadcast,
 );
 const announcementRoutes = createAnnouncementRoutes(announcementService);
-app.route(`${API_PREFIX}/announcements`, announcementRoutes);
 
 // Announcement categories
-const announcementCategoryRepository = new AnnouncementCategoryRepository(db);
+const announcementCategoryRepository = new AnnouncementCategoryRepository(
+	dbClient,
+);
 const announcementCategoryService = new AnnouncementCategoryService(
 	announcementCategoryRepository,
 );
 const announcementCategoryRoutes = createAnnouncementCategoryRoutes(
 	announcementCategoryService,
 );
+
+// Routes
+app.route(`${API_PREFIX}/announcements`, announcementRoutes);
 app.route(`${API_PREFIX}/announcement-categories`, announcementCategoryRoutes);
-
-// Websocket
-app.get(
-	`${API_PREFIX}/ws`,
-	upgradeWebSocket(() => ({
-		onOpen(_event, ws) {
-			wsManager.add(ws);
-		},
-
-		onClose(_event, ws) {
-			wsManager.remove(ws);
-		},
-	})),
-);
-
-// Healthcheck endpoint
-app.get("/healthz", (c) => {
-	c.status(200);
-	return c.text("ok");
-});
+app.route(`${API_PREFIX}/ws`, createWebSocketRoutes(wsManager));
+app.route("/healthz", createHealthRoutes());
 
 serve(
 	{

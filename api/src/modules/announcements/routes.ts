@@ -13,26 +13,24 @@ export function createAnnouncementRoutes(
 	app.get("/", async (c) => {
 		const validated = z
 			.object({
-				queryParamLimit: z.coerce.number().min(1).max(100),
-				queryParamCursor: z.coerce.date().optional(),
-				queryParamCategories: z.array(z.uuid()).optional(),
-				queryParamSearchQuery: z.string().optional(),
+				limit: z.coerce.number().min(1).max(100),
+				cursor: z.coerce.date().optional(),
+				categoryIds: z.array(z.uuid()).optional(),
+				query: z.string().optional(),
 			})
 			.parse({
-				queryParamLimit: c.req.query("limit") ?? 100,
-				queryParamCursor: c.req.query("cursor"),
-				queryParamCategories: c.req.queries("category"),
-				queryParamSearchQuery: c.req.query("query"),
+				limit: c.req.query("limit") ?? 100,
+				cursor: c.req.query("cursor"),
+				categoryIds: c.req.queries("category"),
+				query: c.req.query("query"),
 			});
 
-		const announcements = await announcementService.list(
-			validated.queryParamLimit,
-			{
-				categories: validated.queryParamCategories,
-				query: validated.queryParamSearchQuery,
-			},
-			validated.queryParamCursor,
-		);
+		const announcements = await announcementService.list({
+			limit: validated.limit,
+			query: validated.query,
+			cursor: validated.cursor,
+			categories: validated.categoryIds,
+		});
 
 		return c.json(announcements);
 	});

@@ -3,19 +3,19 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { relations } from "./schema.js";
 
-if (!process.env.DATABASE_URL) {
-	throw new Error("`DATABASE_URL` environment variable must be set");
-}
+export type Database = Awaited<ReturnType<typeof initializeDatabase>>;
 
-const pool = new Pool({
-	connectionString: process.env.DATABASE_URL,
-});
+export async function initializeDatabase() {
+	if (!process.env.DATABASE_URL) {
+		throw new Error("`DATABASE_URL` environment variable must be set");
+	}
 
-export const db = drizzle({ client: pool, relations });
+	const pool = new Pool({
+		connectionString: process.env.DATABASE_URL,
+	});
 
-export type Database = typeof db;
+	const db = drizzle({ client: pool, relations });
 
-export async function mustConnectToDatabase() {
 	try {
 		await db.execute("SELECT 1");
 		console.log("✅ Database connected");
@@ -23,4 +23,6 @@ export async function mustConnectToDatabase() {
 		console.error("❌ Database connection failed:", error);
 		process.exit(1);
 	}
+
+	return db;
 }

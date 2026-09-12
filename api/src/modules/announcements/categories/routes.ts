@@ -7,7 +7,7 @@ export function createAnnouncementCategoryRoutes(
 	const app = new Hono();
 
 	app.get("/", async (c) => {
-		const categories = await categoriesService.listCategories();
+		const categories = await categoriesService.list();
 
 		return c.json(categories);
 	});

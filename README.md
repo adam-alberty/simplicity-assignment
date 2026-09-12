@@ -26,9 +26,12 @@ Technologies used:
 - **Zod** for data validation
 - **Faker** for dummy data
 - **ws** for websockets
+- **typesense** for searching
 
 
 ## How to run
+
+First `cp .env.example .env` and populate the environment variables needed for docker compose.
 
 ```sh
 docker compose up

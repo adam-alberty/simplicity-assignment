@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { X } from "lucide-react";
 import z from "zod";
 import { AlertError } from "#/components/alert-error";
 import { columns } from "#/components/announcements/columns";
@@ -37,6 +38,23 @@ function RouteComponent() {
 					<AnnouncementSearch />
 					<AnnouncementCategoriesFiltering />
 				</div>
+
+				{query && (
+					<div className="my-5">
+						<Button
+							variant="secondary"
+							onClick={() =>
+								navigate({
+									search: (prev) => ({ ...prev, query: undefined }),
+								})
+							}
+						>
+							Results for {query}
+							<X />
+						</Button>
+					</div>
+				)}
+				<div></div>
 
 				{isPending && <TableSkeleton />}
 				{data && (

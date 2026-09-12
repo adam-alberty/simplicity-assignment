@@ -1,30 +1,42 @@
 import type { AnnouncementRepository } from "./repository.js";
 import type { EditAnnouncementInput } from "./schema.js";
+import type { AnnouncementSearchRepository } from "./search/repository.js";
 
 export class AnnouncementService {
 	constructor(
 		private announcements: AnnouncementRepository,
+		private search: AnnouncementSearchRepository,
 		private broadcast: (message: unknown) => void,
 	) {}
 
 	async create(announcement: EditAnnouncementInput) {
-		await this.announcements.create(announcement);
-
+		const newAnnouncement = await this.announcements.create(announcement);
+		await this.search.upsert(newAnnouncement);
 		this.broadcast({
 			type: "announcement.created",
 			data: `${announcement.title}`,
 		});
 	}
 
-	async list(
-		limit: number,
-		filter: {
-			query?: string;
-			categories?: string[];
-		},
-		cursor?: Date,
-	) {
-		return this.announcements.list(limit, filter, cursor);
+	async list(input: {
+		limit: number;
+		query?: string;
+		categories?: string[];
+		cursor?: Date;
+	}) {
+		if (input.query) {
+			return this.search.search({
+				limit: input.limit,
+				query: input.query,
+				categories: input.categories,
+			});
+		}
+
+		return this.announcements.list({
+			limit: input.limit,
+			categories: input.categories,
+			cursor: input.cursor,
+		});
 	}
 
 	async findById(id: string) {
@@ -32,10 +44,15 @@ export class AnnouncementService {
 	}
 
 	async update(id: string, announcement: EditAnnouncementInput) {
-		return this.announcements.update(id, announcement);
+		const updatedAnnouncement = await this.announcements.update(
+			id,
+			announcement,
+		);
+		await this.search.upsert(updatedAnnouncement);
 	}
 
 	async delete(id: string) {
-		return this.announcements.delete(id);
+		await this.announcements.delete(id);
+		await this.search.delete(id);
 	}
 }
