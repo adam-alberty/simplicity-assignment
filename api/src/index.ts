@@ -2,45 +2,38 @@ import { serve, upgradeWebSocket } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import type { WSContext } from "hono/ws";
 import { WebSocketServer } from "ws";
-import { AnnouncementCategoryRepository } from "./announcements/categories/repository.js";
-import { createAnnouncementCategoryRoutes } from "./announcements/categories/routes.js";
-import { AnnouncementCategoryService } from "./announcements/categories/service.js";
-import { AnnouncementRepository } from "./announcements/repository.js";
-import { createAnnouncementRoutes } from "./announcements/routes.js";
-import { AnnouncementService } from "./announcements/service.js";
-import { db, mustConnectToDatabase } from "./db/index.js";
-import { seedDatabase } from "./db/seed.js";
-import { handleError } from "./errors/error-handler.js";
+import { db, mustConnectToDatabase } from "@/db/index.js";
+import { seedDatabase } from "@/db/seed.js";
+import { handleError } from "@/errors/handler.js";
+import { AnnouncementCategoryRepository } from "@/modules/announcements/categories/repository.js";
+import { createAnnouncementCategoryRoutes } from "@/modules/announcements/categories/routes.js";
+import { AnnouncementCategoryService } from "@/modules/announcements/categories/service.js";
+import { AnnouncementRepository } from "@/modules/announcements/repository.js";
+import { createAnnouncementRoutes } from "@/modules/announcements/routes.js";
+import { AnnouncementService } from "@/modules/announcements/service.js";
+import { WebSocketManager } from "@/websocket/manager.js";
 
 await mustConnectToDatabase();
 await seedDatabase();
 
-const clients = new Set<WSContext>();
-
-const broadcast = (message: unknown) => {
-	const data = JSON.stringify(message);
-
-	for (const client of clients) {
-		if (client.readyState === WebSocket.OPEN) {
-			client.send(data);
-		}
-	}
-};
-
 const app = new Hono();
 
+// Global middleware
 app.use(logger(), cors());
+
+// Global error handling
 app.onError(handleError);
 
 const API_PREFIX = "/api/v1";
+
+const wsManager = new WebSocketManager();
 
 // Announcements
 const announcementRepository = new AnnouncementRepository(db);
 const announcementService = new AnnouncementService(
 	announcementRepository,
-	broadcast,
+	wsManager.broadcast,
 );
 const announcementRoutes = createAnnouncementRoutes(announcementService);
 app.route(`${API_PREFIX}/announcements`, announcementRoutes);
@@ -60,11 +53,11 @@ app.get(
 	`${API_PREFIX}/ws`,
 	upgradeWebSocket(() => ({
 		onOpen(_event, ws) {
-			clients.add(ws);
+			wsManager.add(ws);
 		},
 
 		onClose(_event, ws) {
-			clients.delete(ws);
+			wsManager.remove(ws);
 		},
 	})),
 );
@@ -75,13 +68,11 @@ app.get("/healthz", (c) => {
 	return c.text("ok");
 });
 
-const wss = new WebSocketServer({ noServer: true });
-
 serve(
 	{
 		fetch: app.fetch,
 		port: 8080,
-		websocket: { server: wss },
+		websocket: { server: new WebSocketServer({ noServer: true }) },
 	},
 	(info) => {
 		console.log(`Server is running on http://localhost:${info.port}`);

@@ -1,10 +1,10 @@
 import { eq, sql } from "drizzle-orm";
-import type { Database } from "../db/index.js";
+import type { Database } from "@/db/index.js";
 import {
 	announcementsTable,
 	announcementsToCategoriesTable,
-} from "../db/schema.js";
-import { AppError } from "../errors/error.js";
+} from "@/db/schema.js";
+import { AppError } from "@/errors/error.js";
 import type { Announcement } from "./model.js";
 import type { EditAnnouncementInput } from "./schema.js";
 
