@@ -43,7 +43,7 @@ const announcementSearchRepository = new AnnouncementSearchRepository(
 const announcementService = new AnnouncementService(
 	announcementRepository,
 	announcementSearchRepository,
-	wsManager.broadcast,
+	wsManager.broadcast.bind(wsManager),
 );
 const announcementRoutes = createAnnouncementRoutes(announcementService);
 

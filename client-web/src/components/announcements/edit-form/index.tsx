@@ -72,6 +72,8 @@ const formSchema = z.object({
 	publishedAt: publishedAtSchema,
 });
 
+export type EditFormValues = z.infer<typeof formSchema>;
+
 function fieldFormattedDate(date: Date) {
 	const pad = (n: number) => String(n).padStart(2, "0");
 	return `${pad(date.getMonth() + 1)}/${pad(date.getDate())}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
@@ -80,25 +82,14 @@ function fieldFormattedDate(date: Date) {
 export function EditForm({
 	announcement,
 	categories,
+	onSubmit,
+	error,
 }: {
 	announcement: Announcement;
 	categories: AnnouncementCategory[];
+	onSubmit: ({ value }: { value: EditFormValues }) => void;
+	error: Error | null;
 }) {
-	const navigate = useNavigate();
-	const queryClient = useQueryClient();
-
-	const editAnnouncementMutation = useMutation({
-		mutationFn: editAnnouncement,
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ["announcements"],
-			});
-			navigate({
-				to: "/announcements",
-			});
-		},
-	});
-
 	const form = useForm({
 		defaultValues: {
 			title: announcement.title,
@@ -109,23 +100,14 @@ export function EditForm({
 		validators: {
 			onSubmit: formSchema,
 		},
-		onSubmit: async ({ value }) => {
-			editAnnouncementMutation.mutate({
-				id: announcement.id,
-				title: value.title,
-				content: value.content,
-				categoryIds: value.categoryIds,
-				// TODO this should be validated first
-				publishedAt: new Date(value.publishedAt),
-			});
-		},
+		onSubmit,
 	});
 
 	return (
 		<Card>
 			<CardContent>
 				<form
-					id="edit-announcement-report"
+					id="edit-announcement-form"
 					onSubmit={(e) => {
 						e.preventDefault();
 						form.handleSubmit();
@@ -243,9 +225,9 @@ export function EditForm({
 					</FieldGroup>
 				</form>
 
-				{editAnnouncementMutation.isError && (
+				{error && (
 					<div className="mt-5">
-						<AlertError error={editAnnouncementMutation.error} />
+						<AlertError error={error} />
 					</div>
 				)}
 			</CardContent>
@@ -254,7 +236,7 @@ export function EditForm({
 					<Button type="button" variant="outline" onClick={() => form.reset()}>
 						Reset
 					</Button>
-					<Button type="submit" form="edit-announcement-report">
+					<Button type="submit" form="edit-announcement-form">
 						Publish
 					</Button>
 				</Field>

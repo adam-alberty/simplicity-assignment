@@ -9,37 +9,25 @@ import {
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
 import {
-	editAnnouncement,
+	createAnnouncement,
 	getAnnouncementCategories,
-	getOneAnnouncement,
 } from "#/lib/announcements/api";
 
-export const Route = createFileRoute("/(app)/announcements/$id")({
+export const Route = createFileRoute("/(app)/announcements/create")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
-	const params = Route.useParams();
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
-
-	const announcementQuery = useQuery({
-		queryKey: ["announcement", params.id],
-		queryFn: () => getOneAnnouncement(params.id),
-	});
 
 	const categoriesQuery = useQuery({
 		queryKey: ["announcement-categories"],
 		queryFn: getAnnouncementCategories,
 	});
 
-	const isPending = announcementQuery.isPending || categoriesQuery.isPending;
-	const error = announcementQuery.error ?? categoriesQuery.error;
-	const announcement = announcementQuery.data;
-	const categories = categoriesQuery.data;
-
-	const editAnnouncementMutation = useMutation({
-		mutationFn: editAnnouncement,
+	const createAnnouncementMutation = useMutation({
+		mutationFn: createAnnouncement,
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: ["announcements"],
@@ -50,9 +38,12 @@ function RouteComponent() {
 		},
 	});
 
+	const isPending = categoriesQuery.isPending;
+	const error = categoriesQuery.error;
+	const categories = categoriesQuery.data;
+
 	const handleSubmit = ({ value }: { value: EditFormValues }) => {
-		editAnnouncementMutation.mutate({
-			id: params.id,
+		createAnnouncementMutation.mutate({
 			title: value.title,
 			content: value.content,
 			categoryIds: value.categoryIds,
@@ -71,15 +62,22 @@ function RouteComponent() {
 				<ArrowLeft />
 				Back to announcements
 			</Button>
-			<div className="text-2xl font-bold">Edit announcement</div>
+			<div className="text-2xl font-bold">Create announcement</div>
 
 			<section className="mt-10">
 				{isPending && <Skeleton className="h-[50vh]" />}
-				{announcement && categories && (
+				{categories && (
 					<EditForm
-						announcement={announcement}
+						announcement={{
+							title: "",
+							content: "",
+							categories: [],
+							id: "UNUSED",
+							publishedAt: new Date(),
+							updatedAt: new Date(),
+						}}
 						categories={categories}
-						error={error}
+						error={createAnnouncementMutation.error}
 						onSubmit={handleSubmit}
 					/>
 				)}

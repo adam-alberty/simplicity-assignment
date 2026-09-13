@@ -93,7 +93,7 @@ export type EditAnnouncementInput = {
 
 export async function editAnnouncement(
 	announcement: EditAnnouncementInput,
-): Promise<AnnouncementCategory[]> {
+): Promise<void> {
 	const reqBody = {
 		title: announcement.title,
 		content: announcement.content,
@@ -101,10 +101,33 @@ export async function editAnnouncement(
 		categoryIds: announcement.categoryIds,
 	};
 
-	return await apiFetch<GetAnnouncementCategoriesResponse>(
-		`/announcements/${announcement.id}`,
-		{ method: "PATCH", body: JSON.stringify(reqBody) },
-	);
+	return await apiFetch<void>(`/announcements/${announcement.id}`, {
+		method: "PATCH",
+		body: JSON.stringify(reqBody),
+	});
+}
+
+export type CreateAnnouncementInput = {
+	title: string;
+	content: string;
+	publishedAt: Date;
+	categoryIds: string[];
+};
+
+export async function createAnnouncement(
+	announcement: CreateAnnouncementInput,
+): Promise<void> {
+	const reqBody = {
+		title: announcement.title,
+		content: announcement.content,
+		publishedAt: announcement.publishedAt,
+		categoryIds: announcement.categoryIds,
+	};
+
+	return await apiFetch<void>(`/announcements`, {
+		method: "POST",
+		body: JSON.stringify(reqBody),
+	});
 }
 
 export async function deleteAnnouncement(id: string) {

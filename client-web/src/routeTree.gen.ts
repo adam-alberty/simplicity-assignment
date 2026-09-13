@@ -13,6 +13,7 @@ import { Route as appRouteRouteImport } from './routes/(app)/route'
 import { Route as appIndexRouteImport } from './routes/(app)/index'
 import { Route as appAnnouncementsIndexRouteImport } from './routes/(app)/announcements/index'
 import { Route as appAnnouncementsIdRouteImport } from './routes/(app)/announcements/$id'
+import { Route as appAnnouncementsCreateRouteImport } from './routes/(app)/announcements/create'
 
 const appRouteRoute = appRouteRouteImport.update({
   id: '/(app)',
@@ -33,15 +34,22 @@ const appAnnouncementsIdRoute = appAnnouncementsIdRouteImport.update({
   path: '/announcements/$id',
   getParentRoute: () => appRouteRoute,
 } as any)
+const appAnnouncementsCreateRoute = appAnnouncementsCreateRouteImport.update({
+  id: '/announcements/create',
+  path: '/announcements/create',
+  getParentRoute: () => appRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof appIndexRoute
   '/announcements/$id': typeof appAnnouncementsIdRoute
+  '/announcements/create': typeof appAnnouncementsCreateRoute
   '/announcements/': typeof appAnnouncementsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof appIndexRoute
   '/announcements/$id': typeof appAnnouncementsIdRoute
+  '/announcements/create': typeof appAnnouncementsCreateRoute
   '/announcements': typeof appAnnouncementsIndexRoute
 }
 export interface FileRoutesById {
@@ -49,18 +57,21 @@ export interface FileRoutesById {
   '/(app)': typeof appRouteRouteWithChildren
   '/(app)/': typeof appIndexRoute
   '/(app)/announcements/$id': typeof appAnnouncementsIdRoute
+  '/(app)/announcements/create': typeof appAnnouncementsCreateRoute
   '/(app)/announcements/': typeof appAnnouncementsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/announcements/$id' | '/announcements/'
+  fullPaths:
+    '/' | '/announcements/$id' | '/announcements/create' | '/announcements/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/announcements/$id' | '/announcements'
+  to: '/' | '/announcements/$id' | '/announcements/create' | '/announcements'
   id:
     | '__root__'
     | '/(app)'
     | '/(app)/'
     | '/(app)/announcements/$id'
+    | '/(app)/announcements/create'
     | '/(app)/announcements/'
   fileRoutesById: FileRoutesById
 }
@@ -98,18 +109,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appAnnouncementsIdRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/announcements/create': {
+      id: '/(app)/announcements/create'
+      path: '/announcements/create'
+      fullPath: '/announcements/create'
+      preLoaderRoute: typeof appAnnouncementsCreateRouteImport
+      parentRoute: typeof appRouteRoute
+    }
   }
 }
 
 interface appRouteRouteChildren {
   appIndexRoute: typeof appIndexRoute
   appAnnouncementsIdRoute: typeof appAnnouncementsIdRoute
+  appAnnouncementsCreateRoute: typeof appAnnouncementsCreateRoute
   appAnnouncementsIndexRoute: typeof appAnnouncementsIndexRoute
 }
 
 const appRouteRouteChildren: appRouteRouteChildren = {
   appIndexRoute: appIndexRoute,
   appAnnouncementsIdRoute: appAnnouncementsIdRoute,
+  appAnnouncementsCreateRoute: appAnnouncementsCreateRoute,
   appAnnouncementsIndexRoute: appAnnouncementsIndexRoute,
 }
 

@@ -139,23 +139,37 @@ export class AnnouncementRepository {
 
 		const announcements = await this.db.query.announcements.findMany({
 			where: {
-				OR: decodedCursor
-					? [
-							{
-								updatedAt: {
-									lt: decodedCursor.updatedAt,
+				AND: [
+					input.categories
+						? {
+								categories: {
+									id: {
+										in: input.categories,
+									},
 								},
-							},
-							{
-								updatedAt: {
-									eq: decodedCursor.updatedAt,
-								},
-								id: {
-									lt: decodedCursor.id,
-								},
-							},
-						]
-					: [],
+							}
+						: {},
+
+					decodedCursor
+						? {
+								OR: [
+									{
+										updatedAt: {
+											lt: decodedCursor.updatedAt,
+										},
+									},
+									{
+										updatedAt: {
+											eq: decodedCursor.updatedAt,
+										},
+										id: {
+											lt: decodedCursor.id,
+										},
+									},
+								],
+							}
+						: {},
+				],
 			},
 			orderBy: {
 				updatedAt: "desc",
@@ -174,20 +188,36 @@ export class AnnouncementRepository {
 		const prevAnnouncements = decodedCursor
 			? await this.db.query.announcements.findMany({
 					where: {
-						OR: [
-							{
-								updatedAt: {
-									gt: decodedCursor.updatedAt,
-								},
-							},
-							{
-								updatedAt: {
-									eq: decodedCursor.updatedAt,
-								},
-								id: {
-									gt: decodedCursor.id,
-								},
-							},
+						AND: [
+							input.categories
+								? {
+										categories: {
+											id: {
+												in: input.categories,
+											},
+										},
+									}
+								: {},
+
+							decodedCursor
+								? {
+										OR: [
+											{
+												updatedAt: {
+													gt: decodedCursor.updatedAt,
+												},
+											},
+											{
+												updatedAt: {
+													eq: decodedCursor.updatedAt,
+												},
+												id: {
+													gt: decodedCursor.id,
+												},
+											},
+										],
+									}
+								: {},
 						],
 					},
 					orderBy: {

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import z from "zod";
 import { AlertError } from "#/components/alert-error";
@@ -31,7 +31,12 @@ function RouteComponent() {
 
 	return (
 		<>
-			<div className="text-2xl font-bold">Announcements</div>
+			<div className="flex justify-between gap-5 items-center">
+				<div className="text-2xl font-bold">Announcements</div>
+				<Link to="/announcements/create">
+					<Button>Create announcement</Button>
+				</Link>
+			</div>
 
 			<section className="mt-10">
 				<div className="flex gap-3 items-end mb-5">
@@ -61,8 +66,9 @@ function RouteComponent() {
 					<>
 						<AnnouncementsTable columns={columns} data={data.announcements} />
 
-						<div className="mt-5">
+						<div className="mt-5 flex gap-2">
 							<Button
+								variant="secondary"
 								disabled={!data?.prevCursor}
 								onClick={() =>
 									navigate({
@@ -77,6 +83,7 @@ function RouteComponent() {
 							</Button>
 
 							<Button
+								variant="secondary"
 								disabled={!data?.nextCursor}
 								onClick={() =>
 									navigate({
