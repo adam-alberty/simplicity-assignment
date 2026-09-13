@@ -1,5 +1,5 @@
 import type { AnnouncementRepository } from "./repository.js";
-import type { EditAnnouncementInput } from "./schema.js";
+import type { CreateAnnouncementInput } from "./schema.js";
 import type { AnnouncementSearchRepository } from "./search/repository.js";
 
 export class AnnouncementService {
@@ -9,7 +9,7 @@ export class AnnouncementService {
 		private broadcast: (message: unknown) => void,
 	) {}
 
-	async create(announcement: EditAnnouncementInput) {
+	async create(announcement: CreateAnnouncementInput) {
 		const newAnnouncement = await this.announcements.create(announcement);
 		await this.search.upsert(newAnnouncement);
 		this.broadcast({
@@ -43,7 +43,7 @@ export class AnnouncementService {
 		return this.announcements.findById(id);
 	}
 
-	async update(id: string, announcement: EditAnnouncementInput) {
+	async update(id: string, announcement: CreateAnnouncementInput) {
 		const updatedAnnouncement = await this.announcements.update(
 			id,
 			announcement,

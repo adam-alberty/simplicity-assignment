@@ -5,10 +5,13 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/announcements?limit=100"
+  url: "{{baseUrl}}/announcements?limit=100&query=sublime"
   params:
     - name: limit
       value: "100"
+      type: query
+    - name: query
+      value: sublime
       type: query
   auth: inherit
 

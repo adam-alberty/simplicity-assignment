@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import z from "zod";
 import { AppError } from "@/errors/error.js";
-import { editAnnouncementSchema } from "./schema.js";
+import { createAnnouncementSchema } from "./schema.js";
 import type { AnnouncementService } from "./service.js";
 
 export function createAnnouncementRoutes(
@@ -59,7 +59,9 @@ export function createAnnouncementRoutes(
 
 	// Creates an announcement.
 	app.post("/", async (c) => {
-		const parsedBody = z.parse(editAnnouncementSchema, await c.req.json());
+		const parsedBody = z.parse(createAnnouncementSchema, await c.req.json());
+		parsedBody.updatedAt = undefined;
+
 		await announcementService.create(parsedBody);
 
 		return c.json({ success: true });
@@ -73,7 +75,9 @@ export function createAnnouncementRoutes(
 			})
 			.parse({ announcementId: c.req.param("id") });
 
-		const parsedBody = z.parse(editAnnouncementSchema, await c.req.json());
+		const parsedBody = z.parse(createAnnouncementSchema, await c.req.json());
+
+		parsedBody.updatedAt = undefined;
 
 		await announcementService.update(validated.announcementId, parsedBody);
 

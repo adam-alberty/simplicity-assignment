@@ -1,5 +1,9 @@
 # Simplicity assignment
 
+![List page](./docs/demo-page-list.png)
+
+![Edit page](./docs/demo-page-edit.png)
+
 
 ## Web client
 
@@ -31,6 +35,8 @@ Technologies used:
 
 ## How to run
 
+### Docker compose
+
 First `cp .env.example .env` and populate the environment variables needed for docker compose.
 
 ```sh
@@ -43,6 +49,36 @@ On first startup, the API service will push the database schema and seed dummy d
 
 The web client is on [http://localhost:3000](http://localhost:3000).
 API server is on [http://localhost:8080](http://localhost:8080).
+
+
+### Development
+
+Requirements:
+- Node.js
+- pnpm
+- Postgres database running
+- Typesense search running
+
+#### API
+
+Modify the `.env` as specified in `.env.example`.
+
+```sh
+cd ./api
+pnpm install
+pnpm db:push
+pnpm dev
+```
+
+#### Frontend
+
+Modify the `.env` as specified in `.env.example`.
+
+```sh
+cd ./client-web
+pnpm install
+pnpm dev
+```
 
 
 ## API Routes
