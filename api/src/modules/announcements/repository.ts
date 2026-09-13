@@ -6,7 +6,11 @@ import {
 } from "@/db/schema.js";
 import { AppError } from "@/errors/error.js";
 import type { Announcement } from "./model.js";
-import type { CreateAnnouncementInput, EditAnnouncementInput } from "./schema.js";
+import type { CreateAnnouncementInput } from "./schema.js";
+import {
+	decodeAnnouncementCursor,
+	encodeAnnouncementCursor,
+} from "./cursor.js";
 
 export class AnnouncementRepository {
 	constructor(private db: Database) {}
@@ -47,7 +51,7 @@ export class AnnouncementRepository {
 		});
 	}
 
-	async update(id: string, announcement: EditAnnouncementInput) {
+	async update(id: string, announcement: CreateAnnouncementInput) {
 		return await this.db.transaction(async (tx) => {
 			const [updatedAnnouncement] = await tx
 				.update(announcementsTable)
@@ -128,60 +132,90 @@ export class AnnouncementRepository {
 		};
 	}
 
-	async list(input: { limit: number; categories?: string[]; cursor?: Date }) {
+	async list(input: { limit: number; categories?: string[]; cursor?: string }) {
+		const decodedCursor = input.cursor
+			? decodeAnnouncementCursor(input.cursor)
+			: undefined;
+
 		const announcements = await this.db.query.announcements.findMany({
+			where: {
+				OR: decodedCursor
+					? [
+							{
+								updatedAt: {
+									lt: decodedCursor.updatedAt,
+								},
+							},
+							{
+								updatedAt: {
+									eq: decodedCursor.updatedAt,
+								},
+								id: {
+									lt: decodedCursor.id,
+								},
+							},
+						]
+					: [],
+			},
+			orderBy: {
+				updatedAt: "desc",
+				id: "desc",
+			},
+			limit: input.limit + 1,
 			with: {
 				categories: {
-					orderBy: (categories, { asc }) => asc(categories.name),
+					orderBy: {
+						name: "asc",
+					},
 				},
 			},
+		});
 
-			where: input.cursor
-				? {
-						updatedAt: {
-							lt: input.cursor,
-						},
-						categories: {
-							id: {
-								in: input.categories,
+		const prevAnnouncements = decodedCursor
+			? await this.db.query.announcements.findMany({
+					where: {
+						OR: [
+							{
+								updatedAt: {
+									gt: decodedCursor.updatedAt,
+								},
 							},
-						},
-					}
-				: {
-						categories: {
-							id: {
-								in: input.categories,
+							{
+								updatedAt: {
+									eq: decodedCursor.updatedAt,
+								},
+								id: {
+									gt: decodedCursor.id,
+								},
 							},
-						},
+						],
 					},
-
-			orderBy: (t, { desc }) => desc(t.updatedAt),
-			limit: input.limit + 1,
-		});
-
-		// TODO prev cursor bug
-		const prevAnnouncements = await this.db.query.announcements.findMany({
-			where: input.cursor
-				? {
-						updatedAt: {
-							gt: input.cursor,
-						},
-					}
-				: undefined,
-			orderBy: (t, { asc }) => asc(t.updatedAt),
-			limit: input.limit + 1,
-		});
+					orderBy: {
+						updatedAt: "asc",
+						id: "asc",
+					},
+					limit: input.limit + 1,
+				})
+			: [];
 
 		const hasMore = announcements.length > input.limit;
 		const data = announcements.slice(0, input.limit);
 		const last = data.at(-1);
 
 		const hasPrevious = prevAnnouncements.length > 0;
+		const prevData = prevAnnouncements.slice(0, input.limit);
+		const prev = prevData.at(-1);
 
 		return {
 			announcements: data,
-			nextCursor: hasMore && last ? last.updatedAt : null,
-			prevCursor: hasPrevious ? prevAnnouncements.at(-1)?.updatedAt : null,
+			nextCursor:
+				hasMore && last
+					? encodeAnnouncementCursor({ id: last.id, updatedAt: last.updatedAt })
+					: null,
+			prevCursor:
+				hasPrevious && prev
+					? encodeAnnouncementCursor({ id: prev.id, updatedAt: prev.updatedAt })
+					: null,
 		};
 	}
 }

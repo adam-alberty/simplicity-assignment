@@ -22,7 +22,7 @@ export class AnnouncementService {
 		limit: number;
 		query?: string;
 		categories?: string[];
-		cursor?: Date;
+		cursor?: string;
 	}) {
 		if (input.query) {
 			return this.search.search({

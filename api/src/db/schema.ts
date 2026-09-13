@@ -1,5 +1,6 @@
 import { defineRelations } from "drizzle-orm";
 import {
+	index,
 	primaryKey,
 	snakeCase,
 	text,
@@ -8,13 +9,17 @@ import {
 	varchar,
 } from "drizzle-orm/pg-core";
 
-export const announcementsTable = snakeCase.table("announcements", {
-	id: uuid().defaultRandom().primaryKey(),
-	title: varchar({ length: 255 }).notNull(),
-	content: text().notNull(),
-	publishedAt: timestamp().notNull().defaultNow(),
-	updatedAt: timestamp().notNull().defaultNow(),
-});
+export const announcementsTable = snakeCase.table(
+	"announcements",
+	{
+		id: uuid().defaultRandom().primaryKey(),
+		title: varchar({ length: 255 }).notNull(),
+		content: text().notNull(),
+		publishedAt: timestamp().notNull().defaultNow(),
+		updatedAt: timestamp().notNull().defaultNow(),
+	},
+	(t) => [index("updated_at_id_idx").on(t.updatedAt, t.id)],
+);
 
 export const categoriesTable = snakeCase.table("categories", {
 	id: uuid().defaultRandom().primaryKey(),

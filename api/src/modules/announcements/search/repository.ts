@@ -34,6 +34,7 @@ export class AnnouncementSearchRepository {
 			.search({
 				q: input.query,
 				query_by: "title,content",
+				query_by_weights: "3,1",
 				per_page: input.limit,
 				filter_by: input.categories?.length
 					? `category_ids:=[${input.categories.join(",")}]`

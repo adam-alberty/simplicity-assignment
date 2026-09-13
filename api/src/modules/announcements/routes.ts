@@ -14,7 +14,7 @@ export function createAnnouncementRoutes(
 		const validated = z
 			.object({
 				limit: z.coerce.number().min(1).max(100),
-				cursor: z.coerce.date().optional(),
+				cursor: z.string().optional(),
 				categoryIds: z.array(z.uuid()).optional(),
 				query: z.string().optional(),
 			})
