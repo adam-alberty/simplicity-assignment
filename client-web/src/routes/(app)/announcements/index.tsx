@@ -1,9 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
+import { useState } from "react";
 import z from "zod";
 import { AlertError } from "#/components/alert-error";
-import { columns } from "#/components/announcements/columns";
+import { createColumns } from "#/components/announcements/columns";
+import { AnnouncementDeletionDialog } from "#/components/announcements/deletion-dialog";
 import { AnnouncementCategoriesFiltering } from "#/components/announcements/filtering";
 import { AnnouncementSearch } from "#/components/announcements/search";
 import { AnnouncementsTable } from "#/components/announcements/table";
@@ -31,6 +33,8 @@ function RouteComponent() {
 		queryKey: ["announcements", query, categories, cursor],
 		queryFn: () => listAnnouncements({ categories, query }, cursor, 50),
 	});
+
+	const [deletingId, setDeletingId] = useState<string | null>(null);
 
 	return (
 		<>
@@ -62,12 +66,20 @@ function RouteComponent() {
 						</Button>
 					</div>
 				)}
-				<div></div>
 
 				{isPending && <TableSkeleton />}
 				{data && (
 					<>
-						<AnnouncementsTable columns={columns} data={data.announcements} />
+						<AnnouncementDeletionDialog
+							id={deletingId}
+							onOpenChange={(open: boolean) => {
+								if (!open) setDeletingId(null);
+							}}
+						/>
+						<AnnouncementsTable
+							columns={createColumns(setDeletingId)}
+							data={data.announcements}
+						/>
 
 						<div className="mt-5 flex gap-2">
 							<Button

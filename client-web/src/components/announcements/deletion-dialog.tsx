@@ -1,6 +1,4 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Trash } from "lucide-react";
-import { useState } from "react";
 import { deleteAnnouncement } from "#/lib/announcements/api";
 import {
 	AlertDialog,
@@ -11,18 +9,21 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "../ui/button";
 
-export function AnnouncementDeletionDialog({ id }: { id: string }) {
+export function AnnouncementDeletionDialog({
+	id,
+	onOpenChange,
+}: {
+	id: string | null;
+	onOpenChange: (v: boolean) => void;
+}) {
 	const queryClient = useQueryClient();
-	const [open, setOpen] = useState(false);
 
 	const deleteMutation = useMutation({
 		mutationFn: deleteAnnouncement,
 		onSuccess: () => {
-			setOpen(false);
+			onOpenChange(false);
 			queryClient.invalidateQueries({
 				queryKey: ["announcements"],
 			});
@@ -30,14 +31,7 @@ export function AnnouncementDeletionDialog({ id }: { id: string }) {
 	});
 
 	return (
-		<AlertDialog open={open} onOpenChange={(open) => setOpen(open)}>
-			<AlertDialogTrigger
-				render={
-					<Button variant="destructive" aria-label="Delete announcement" />
-				}
-			>
-				<Trash />
-			</AlertDialogTrigger>
+		<AlertDialog open={id !== null} onOpenChange={onOpenChange}>
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -50,7 +44,7 @@ export function AnnouncementDeletionDialog({ id }: { id: string }) {
 					<AlertDialogCancel>Cancel</AlertDialogCancel>
 					<AlertDialogAction
 						variant="destructive"
-						onClick={() => deleteMutation.mutate(id)}
+						onClick={() => id !== null && deleteMutation.mutate(id)}
 					>
 						Continue
 					</AlertDialogAction>
