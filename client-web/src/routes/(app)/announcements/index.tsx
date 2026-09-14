@@ -12,6 +12,9 @@ import { Button } from "#/components/ui/button";
 import { listAnnouncements } from "#/lib/announcements/api";
 
 export const Route = createFileRoute("/(app)/announcements/")({
+	head: () => ({
+		meta: [{ title: "Announcements" }],
+	}),
 	validateSearch: z.object({
 		cursor: z.string().optional(),
 		categories: z.array(z.uuid()).optional(),

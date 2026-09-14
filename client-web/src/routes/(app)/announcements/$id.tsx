@@ -15,6 +15,9 @@ import {
 } from "#/lib/announcements/api";
 
 export const Route = createFileRoute("/(app)/announcements/$id")({
+	head: () => ({
+		meta: [{ title: "Edit announcement" }],
+	}),
 	component: RouteComponent,
 });
 
